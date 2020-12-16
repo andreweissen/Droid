@@ -1,0 +1,24 @@
+{
+  "roles": {
+    "user": "770419446278914108",
+    "moderator": "770420191266996224",
+    "droid": "770421287868694568"
+  },
+  "channels": {
+    "verify": "770414411935514658",
+    "moderator": "770415857834524702",
+    "directory": "771761741347422219",
+    "logs": "774639690551656469"
+  },
+  "commands": {
+    "prefix": "!",
+    "names": {
+      "verify": "verify",
+      "ping": "ping"
+    }
+  },
+  "utility": {
+    "subdomain": "swfanon",
+    "interval": 5000
+  }
+}

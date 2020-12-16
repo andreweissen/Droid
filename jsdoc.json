@@ -1,0 +1,15 @@
+{
+  "source": {
+    "include": ["index.js", "src"],
+    "includePattern": ".js$",
+    "excludePattern": "(node_modules/|doc)"
+  },
+  "templates": {
+    "monospaceLinks": true
+  },
+  "opts": {
+    "recurse": true,
+    "destination": "./doc/",
+    "readme": "./README.md"
+  }
+}

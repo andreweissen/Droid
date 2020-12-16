@@ -1,0 +1,7 @@
+### Droid ###
+
+[__Droid__](https://en.wikipedia.org/wiki/Droid_(Star_Wars)) is a [Node.js](https://en.wikipedia.org/wiki/Node.js) [Discord](https://en.wikipedia.org/wiki/Discord_(software)) bot application developed by request for the [_Star Wars_ Fanon Wiki's server](https://swfanon.fandom.com/wiki/Star_Wars_Fanon_Wiki) and available for more general use on Discord servers associated with [Wikia/Fandom](https://en.wikipedia.org/wiki/Fandom_(website)) wikis.
+
+Though originally designed solely for the purposes of verifying the identities of prospective members seeking access to the _Star Wars_ Fanon community's server, the original application was subsequently refactored and reorganized so as to make it more readily extendable and adaptive to potential subsequent feature expansions and more easily employed by other Wikia/Fandom wikis' servers.
+
+While the initial version of the application was designed with only the _Star Wars_ Fanon Discord server in mind, the author subsequently removed hardcoded values referencing this single Wikia/Fandom wiki and encapsulated all configurable properties within a single `config.json` file, thus permitting both a certain degree of customization and independent usage in conjunction with other Wikia/Fandom wikis.

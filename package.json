@@ -1,0 +1,29 @@
+{
+  "name": "droid",
+  "version": "0.1.1",
+  "description": "A Node.js Discord bot for Wikia/Fandom wiki servers",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "doc": "jsdoc -c jsdoc.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andreweissen/Droid.git"
+  },
+  "author": "Andrew Eissen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/andreweissen/Droid/issues"
+  },
+  "homepage": "https://github.com/andreweissen/Droid#readme",
+  "dependencies": {
+    "discord.js": "^12.5.1",
+    "dotenv": "^8.2.0",
+    "got": "^11.8.1"
+  },
+  "devDependencies": {
+    "jsdoc": "^3.6.6",
+    "jshint": "^2.12.0"
+  }
+}

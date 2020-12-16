@@ -1,0 +1,36 @@
+{
+  "client": {
+    "error": {
+      "error": "Error",
+      "login": "Error: Already logged in",
+      "unrelated": "this channel's messages are restricted to verification requests only",
+      "nonexistent": "no command by that name found."
+    },
+    "success": {
+      "online": "Online"
+    }
+  },
+  "commands": {
+    "ping": {
+      "success": {
+        "default": "Pong!",
+        "custom": "gnip!"
+      }
+    },
+    "verify": {
+      "error": {
+        "misplaced": "verification requests are restricted to the verify channel.",
+        "username": "please specify a username.",
+        "redundant": "your account already has the requisite role.",
+        "nonexistent": "no such user account found.",
+        "edits": "you have an insufficient edit count on the wiki.",
+        "missing": "your Discord username is missing from your wiki masthead.",
+        "mismatched": "your current Discord username and wiki masthead Discord name do not match.",
+        "server": "a server-side error was encountered. Please try again."
+      },
+      "success": {
+        "granted": "access to the server has been granted."
+      }
+    }
+  }
+}

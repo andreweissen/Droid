@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: src/client.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: src/client.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// @ts-check
+/**
+ * @file client.js
+ * @module client
+ * @author Andrew Eissen &lt;andrew@andreweissen.com>
+ * @requires fs
+ * @requires path
+ * @requires discord.js
+ */
+"use strict";
+
+/** @const {Object} fs - File system module */
+const fs = require("fs");
+
+/** @const {Object} path - Path module */
+const path = require("path");
+
+/** @const {Object} Discord - Discord.js module (class) */
+const Discord = require("discord.js");
+
+// @ts-check
+/**
+ * @classdesc The &lt;code>Client&lt;/code> class serves as the beating heart of the
+ * application of the same name. It is responsible for coordinating the behavior
+ * of the bot, loading commands, evaluating each new message posted to server
+ * channels, and replying to user queries as required.
+ * &lt;br />
+ * &lt;br />
+ * As the central class of the bot application, &lt;code>Client&lt;/code> is the only
+ * class that may interact with other users in the server channels through the
+ * posting of messages. In previous versions of the application, various command
+ * subclasses extending [Command]{@link module:command~Command} would likewise
+ * post messages in the server. However, this spaghetti approach was eventually
+ * refactored and replaced with the passing of each subclass a reference to
+ * [addReply]{@link module:client~Client#addReply} bound to the
+ * &lt;code>Client&lt;/code> class instance to ensure all message logging remained
+ * during the exclusive purview of the central &lt;code>Client&lt;/code> class.
+ * @class
+ */
+class Client {
+
+  /**
+   * @description The &lt;code>Client&lt;/code> class constructor, invoked by
+   * index.js, is responsible for creating new &lt;code>Discord.Client&lt;/code> and
+   * &lt;code>Discord.Collection&lt;/code> instances, defining a &lt;code>config&lt;/code>
+   * object containing various operation properties, setting various status
+   * &lt;code>boolean&lt;/code> flags, and establishing event listeners and their
+   * associated callbacks.
+   * @param {string} token - A process environment variable representing the
+   * Discord application's client ID/bot token provided by Discord when first
+   * converting an application to a bot.
+   * @param {Object} config - The implementation-specific configuration options
+   * available for adjustment prior to installation, generally stored in
+   * &lt;code>/resources/config.json&lt;/code> and passed by &lt;code>index.js&lt;/code>.
+   * @param {Object} lang - The text of all possible server replies and console
+   * messages available to the bot, generally stored in
+   * &lt;code>/resources/lang.json&lt;/code> and passed by &lt;code>index.js&lt;/code>.
+   * @constructor
+   */
+  constructor (token, config, lang) {
+
+    /**
+     * @description The &lt;code>token&lt;/code> property is a process environment
+     * variable representing the Discord application's client ID/bot token
+     * provided by Discord when first converting an application to a bot, the
+     * value of which is obfuscated as a process variable stored in an
+     * &lt;code>env&lt;/code> file hidden by &lt;code>.gitignore&lt;/code>.
+     * @member {string}
+     */
+    this.token = token;
+
+    /**
+     * @description The &lt;code>config&lt;/code> &lt;code>Object&lt;/code> serves to
+     * compartmentalize certain configuration properties that may vary and
+     * change depending on application implementation context. Such properties
+     * include the Discord application ID/bot token, the value of which is
+     * obfuscated as a process variable stored in an &lt;code>env&lt;/code> file that
+     * is hidden by &lt;code>.gitignore&lt;/code>, the specific &lt;code>string&lt;/code>
+     * prefix that precedes command invocations, and the interval duration that
+     * governs how long the application should wait before automatically
+     * deleting bot replies to user commands.
+     * @member {Object}
+     */
+    this.config = config;
+
+    /**
+     * @description The &lt;code>lang&lt;/code> &lt;code>Object&lt;/code> contains all the
+     * raw text content of messages the &lt;code>Client&lt;/code> class instance will
+     * generate in the server channels by means of [Client#addReply]{@link
+     * module:client~Client#addReply}. Unlike the contents of the
+     * [Client#config]{@link module:client~Client#config} &lt;code>Object&lt;/code>,
+     * the &lt;code>lang&lt;/code> property should not be configured by the installing
+     * user or have its properties adjusted in any way apart from the submission
+     * of modifications made to the text values of the JSON keys.
+     * @member {Object}
+     */
+    this.lang = lang;
+
+    /**
+     * @description The &lt;code>client&lt;/code> property of the &lt;code>Client&lt;/code>
+     * class is an instance of the
+     * [Discord.Client]{@link import('discord.js').Client} class that serves as
+     * the main interface of the discord.js module and the primary means by
+     * which the Client application interacts with the Discord API. Its methods
+     * are invoked to establish the event listener handlers and callbacks
+     * responsible for monitoring user messages posted to server channels and
+     * handles changes to the application's status.
+     * @member {Discord.Client}
+     * @see [Discord.Client]{@link
+     * https://discord.js.org/#/docs/main/master/class/Client}
+     */
+    this.client = new Discord.Client();
+
+    /**
+     * @description The &lt;code>commands&lt;/code> property of the
+     * &lt;code>Client&lt;/code> class is an instance of the
+     * [Discord.Collection]{@link import('discord.js').Collection} class that is
+     * used to store initialized instances of command classes that extend the
+     * base [Command]{@link module:command~Command} class. A subclass that
+     * extends the base {@link Map} JavaScript structure, it is populated by
+     * [loadCommand]{@link module:client~Client#loadCommand}, usually at the
+     * start of the application's initialization, though post-initialization
+     * additions of command classes is possible.
+     * @member {Discord.Collection}
+     * @see [Discord.Collection]{@link
+     * https://discord.js.org/#/docs/collection/master/class/Collection}
+     */
+    this.commands = new Discord.Collection();
+
+    /**
+     * @description The &lt;code>_loggedIn&lt;/code> &lt;code>boolean&lt;/code> property is
+     * a private internal field used to indicate whether the application is
+     * already active and logged in. The method responsible for setting this
+     * flag is [Client#login]{@link module:client~Client#login}, which sets the
+     * flag after invoking [Client#client's]{@link module:client~Client#client}
+     * own [Discord.Client#login]{@link
+     * https://discord.js.org/#/docs/main/master/class/Client?scrollTo=login}
+     * method used to establish a Websocket connection to Discord.
+     * @member {boolean}
+     */
+    this._loggedIn = false;
+
+    /**
+     * @description The &lt;code>_debug&lt;/code> &lt;code>boolean&lt;/code> property is a
+     * private internal field used to display certain information in the console
+     * when its value is set to &lt;code>true&lt;/code>. As its name implies, it
+     * toggles the &lt;code>Client&lt;/code> class's debug mode to assist in debugging
+     * and application diagnosis.
+     * @member {boolean}
+     */
+    this._debug = true;
+
+    // Set event listeners and associated callbacks
+    this.client.on("ready", this.onReady.bind(this));
+    this.client.on("error", this.onError.bind(this));
+    this.client.on("message", this.onMessage.bind(this));
+  }
+
+  /**
+   * @description &lt;code>set token&lt;/code> serves as the setter method for the
+   * &lt;code>token&lt;/code> parameter property representing the bot client ID token.
+   * It checks to ensure that the parameter &lt;code>token&lt;/code> is of the
+   * primitive &lt;code>string&lt;/code> type or the &lt;code>String&lt;/code> wrapper
+   * &lt;code>Object&lt;/code>, applying an empty string to the internal field if
+   * the parameter is not of the proper type.
+   * @function
+   * @param {string|String} token - The parameter to be assigned as the internal
+   * &lt;code>_token&lt;/code>. It should be a primitive &lt;code>string&lt;/code> or an
+   * &lt;code>Object&lt;/code> of the &lt;code>String&lt;/code> wrapper class.
+   * @returns {void}
+   */
+  set token (token) {
+    // @ts-ignore
+    this._token = typeof token === "string" || token instanceof String
+      ? token
+      : "";
+  }
+
+  /**
+   * @description &lt;code>set config&lt;/code> serves as the setter method for the
+   * &lt;code>config&lt;/code> parameter property containing the custom configuration
+   * options available for tweaking prior to installation of the application. It
+   * checks to ensure that the parameter &lt;code>config&lt;/code> is of the
+   * &lt;code>Object&lt;/code> type, applying a default empty &lt;code>Object&lt;/code> to
+   * the internal field if the parameter is not of the proper type.
+   * @function
+   * @param {Object} config - The parameter to be assigned as the internal
+   * &lt;code>_config&lt;/code>. It should be a primitive &lt;code>Object&lt;/code>.
+   * @returns {void}
+   */
+  set config (config) {
+    this._config = typeof config === "object" &amp;&amp; config.constructor === Object
+      ? Object.freeze(config)
+      : {};
+  }
+
+  /**
+   * @description &lt;code>set lang&lt;/code> serves as the setter method for the
+   * &lt;code>lang&lt;/code> parameter property containing the text of all possible
+   * messages the greater bot application can log in server channels. It checks
+   * to ensure that the parameter &lt;code>config&lt;/code> is of the
+   * &lt;code>Object&lt;/code> type, applying a default empty &lt;code>Object&lt;/code> to
+   * the internal field if the parameter is not of the proper type.
+   * @function
+   * @param {Object} lang - The parameter to be assigned as the internal
+   * &lt;code>_lang&lt;/code>. It should be a primitive &lt;code>Object&lt;/code>.
+   * @returns {void}
+   */
+  set lang (lang) {
+    this._lang = typeof lang === "object" &amp;&amp; lang.constructor === Object
+      ? Object.freeze(lang)
+      : {};
+  }
+
+  /**
+   * @description &lt;code>get token&lt;/code> serves as the getter method for the
+   * &lt;code>token&lt;/code> property. It simply returns the value of the internal
+   * field, be that the parameter value passed to the constructor during
+   * initialization or the default empty &lt;code>string&lt;/code> value.
+   * @function
+   * @returns {string} _token - Value of the internal &lt;code>string&lt;/code>
+   */
+  get token () {
+    return this._token;
+  }
+
+  /**
+   * @description &lt;code>get config&lt;/code> serves as the getter method for the
+   * &lt;code>config&lt;/code> property. It simply returns the value of the internal
+   * field, be that the parameter value passed to the constructor during
+   * initialization or the default empty &lt;code>Object&lt;/code>.
+   * @function
+   * @returns {Object} _config - Value of the internal &lt;code>Object&lt;/code>
+   */
+  get config () {
+    return this._config;
+  }
+
+  /**
+   * @description &lt;code>get lang&lt;/code> serves as the getter method for the
+   * &lt;code>lang&lt;/code> property. It simply returns the value of the internal
+   * field, be that the parameter value passed to the constructor during
+   * initialization or the default empty &lt;code>Object&lt;/code>.
+   * @function
+   * @returns {Object} _lang - Value of the internal &lt;code>Object&lt;/code>
+   */
+  get lang () {
+    return this._lang;
+  }
+
+  /**
+   * @description &lt;code>onReady&lt;/code> simply logs a message in the console
+   * when the application has been successfully initialized and a Websocket
+   * connection established with Discord.
+   * @function
+   * @returns {void}
+   */
+  onReady () {
+    return console.log(this.lang.client.success.online);
+  }
+
+  /**
+   * @description As with &lt;code>onReady&lt;/code>, &lt;code>onError&lt;/code> logs the
+   * relevant error code with the error message in the console for debugging.
+   * @function
+   * @param {*} error - Error code for logging with default error message
+   * @returns {void}
+   */
+  onError (error) {
+    return console.error(this.lang.client.error.error, error);
+  }
+
+  /**
+   * @description Arguably the most important method of the &lt;code>Client&lt;/code>
+   * class, &lt;code>onMessage&lt;/code> serves as the primary event listener callback
+   * handling "message" events. As such, it is responsible for checking to see
+   * if the bot application should take an interest in the most recent message,
+   * namely the [Discord.Message]{@link
+   * http://discord.js.org/#/docs/main/master/class/Message} instance that is
+   * passed as the method's sole parameter. If the message is determined to
+   * constitute a command invocation, the method will check to see if a command
+   * matching the invoked name exists in [Client#commands]{@link
+   * module:client~Client#commands}, the [Discord.Collection]{@link
+   * https://discord.js.org/#/docs/collection/master/class/Collection}
+   * containing all previously instantiated command subclasses corresponding to
+   * available command functionality. If so, the method invokes the relevant
+   * implementation of [Command#execute]{@link module:command~Command#execute}
+   * to pass the execution progression off to the relevant subclass.
+   * &lt;br />
+   * &lt;br />
+   * On a more detailed level, the method begins by checking if the user has
+   * attempted to post a non-verification message in the verify channel, logging
+   * the message in the moderator logs channel if so before deleting the message
+   * and adding a timed reply in response. Otherwise, if the message was a
+   * normal user post in another channel rather than a command invocation, the
+   * method ignores it and returns to await the next message.
+   * &lt;br />
+   * &lt;br />
+   * However, if the message does constitute a wellformed command invocation,
+   * the method will validate the input and attempt to locate an available
+   * command matching the desired command. If one is found, the method will then
+   * query &lt;code>Client#commands&lt;/code> to see if an instance of the appropriate
+   * command subclass extending [Command]{@link module:command~Command} exists,
+   * invoking [Client#loadCommand]{@link module:client~Client#loadCommand} if
+   * not. Execution is then handed off to the &lt;code>Command#execute&lt;/code>
+   * method to address the required command action.
+   * @function
+   * @param {Object} message - A new &lt;code>Discord.Message&lt;/code> class instance
+   * containing information pertaining to the most recent server message, its
+   * author, and the channel in which it was posted, among other data.
+   * @returns {void}
+   */
+  onMessage (message) {
+    const commands = this.config.commands;
+    const channels = this.config.channels;
+    const lang = this.lang.client;
+
+    /*
+     * If the posting user is not a bot and is posting non-verification messages
+     * in the Verify channel, the application will post the contents of that
+     * message in the moderator-restricted "logs" channel as an attributed
+     * indented quotation before deleting the original message from the verify
+     * channel. The bot will then post a follow-up reply addressed to the user
+     * that informs of the channel's intended purposes. This reply will
+     * self-delete after the provided interval.
+     */
+    if (
+      !message.author.bot &amp;&amp;
+      (message.channel.id === channels.verify) &amp;&amp;
+      (!message.content.startsWith(commands.prefix + commands.names.verify))
+    ) {
+      // Post in Chat Moderator "logs" channel
+      message.client.channels.cache.get(channels.logs).send(
+        `${message.author.tag}:\n> ${message.content}`
+      );
+
+      // Add self-deleting informational message
+      return this.addReply(message, lang.error.unrelated);
+    }
+
+    /*
+     * Take no further interest if the poster is a bot (avoid instant
+     * self-deletion of above timed replies) or if the message doesn't start
+     * with the command prefix.
+     */
+    if (!message.content.startsWith(commands.prefix) || message.author.bot) {
+      return;
+    }
+
+    // Remove prefix and convert to array of strings, i.e. ["verify", "Sebolto"]
+    const args = message.content.slice(commands.prefix.length).split(/ +/);
+
+    // Remove command text ("ping", "verify") from args array and lowercase it
+    const invokedCommand = args.shift().toLowerCase();
+
+    if (this._debug) {
+      console.log(args, invokedCommand);
+    }
+
+    // Check that invoked command is actually an implemented command subclass
+    const command = Object.keys(commands.names).find(key => {
+      return commands.names[key] === invokedCommand;
+    });
+
+    // Handle nonexistent command invocations
+    if (!command) {
+      return this.addReply(message, lang.error.nonexistent);
+    }
+
+    /*
+     * Check if the &lt;code>Client&lt;/code> instance's
+     * &lt;code>Discord.Collection&lt;/code> (extends &lt;code>Map&lt;/code>) already has
+     * the queried command, implying that &lt;code>loadCommand&lt;/code> has already
+     * been invoked and a new instance of this command's class created and
+     * stored.
+     */
+    if (!this.commands.has(command)) {
+      try {
+        this.loadCommand(`${command}.js`);
+      } catch (error) {
+        return console.error(lang.error.error, error);
+      }
+    }
+
+    // Acquire class instance and invoke the execute method
+    this.commands.get(command).execute(message, args, this.addReply.bind(this));
+  }
+
+  /**
+   * @description The &lt;code>addReply&lt;/code> method is used to log a new reply
+   * directed at the user invoking the given command that provides information
+   * about the state of the request. A copy of this function bound to the
+   * &lt;code>Client&lt;/code> class instance to which the method belongs is passed to
+   * each command subclasses's [execute]{@link Command#execute} method to
+   * ensure that the &lt;code>Client&lt;/code> class is the only module to interact
+   * with the server channels. Subclasses extending [Command]{@link Command}
+   * should only contain application logic related to those commands, leaving
+   * the posting of results to this method.
+   * @function
+   * @param {Object} message - A new [Discord.Message]{@link
+   * http://discord.js.org/#/docs/main/master/class/Message} class instance
+   * containing information pertaining to the most recent server message, its
+   * author, and the channel in which it was posted, among other data.
+   * @param {string} langMessage - The text of the specific message to log,
+   * generally a relevant property of [lang]{@link module:client~Client#lang}.
+   * @param {boolean} [deleteMessages=true] - A &lt;code>boolean&lt;/code> flag
+   * denoting whether to delete the poster's original message and the bot's
+   * reply after the interval defined in [config]{@link
+   * module:client~Client#config} has elapsed. This optional field is set to
+   * &lt;code>true&lt;/code> by default.
+   * @returns {void}
+   */
+  addReply (message, langMessage, deleteMessages = true) {
+    if (deleteMessages) {
+      message.delete();
+    }
+
+    // Direct reponse to the user directly
+    message.reply(langMessage).then(msg => {
+      if (deleteMessages) {
+        msg.delete({
+          timeout: this.config.utility.interval
+        });
+      }
+    }).catch(console.error);
+  }
+
+  /**
+   * @description As its name implies, &lt;code>loadCommand&lt;/code> is used to
+   * create a new class instance of the command class specified in the
+   * &lt;code>file&lt;/code> parameter and add that newly created instance to the
+   * &lt;code>Client&lt;/code> instance's &lt;code>Discord.Collection&lt;/code> map for
+   * subsequent retrieval and usage.
+   * @function
+   * @param {string} file - The name of the requested command to load (should
+   * come suffixed with "&lt;code>.js&lt;/code>" in all cases)
+   * @param {string} [dir=path.join(__dirname, "commands", "lib")] - Directory
+   * name in which the parameter command file may be found (default is
+   * &lt;code>./commands/lib&lt;/code>)
+   * @returns {void}
+   */
+  loadCommand (file, dir = path.join(__dirname, "commands", "lib")) {
+
+    // Get module exports of requested command file
+    const Command = require(path.join(dir, file));
+
+    // Command#name field value from name of the JS file in question
+    const name = file.split(".")[0];
+
+    // Command subclass-specific bot messages from this.lang.commands
+    const lang = this.lang.commands[name];
+
+    // Instantiate new instance of command class and mark as unloaded
+    const command = new Command(name, false, this.config, lang);
+
+    if (this._debug) {
+      console.log(`${command.name} -> ${this.commands.has(command.name)}`);
+    }
+
+    // Add new command to map if not already extant and mark as loaded
+    if (!this.commands.has(command.name) &amp;&amp; !command.loaded) {
+      this.commands.set(command.name, command);
+      command.loaded = true;
+    }
+  }
+
+  /**
+   * @description The &lt;code>loadCommandDir&lt;/code> method is used to fetch the
+   * &lt;code>string&lt;/code> names representing files stored in the parameter
+   * directory, filter out those that are not properly suffixed "js" JavaScript
+   * modules, and invoke [loadCommand]{@link module:client~Client#loadCommand}
+   * on those those for the purposes of populating the &lt;code>Client&lt;/code> class
+   * instance's &lt;code>Discord.Collection&lt;/code> map.
+   * @function
+   * @param {string} dir - Directory &lt;code>Array&lt;/code> of &lt;code>string&lt;/code>
+   * file names (&lt;code>./src/commands/lib&lt;/code> when invoked by
+   * {@link index.js})
+   * @returns {void}
+   */
+  loadCommandDir (dir) {
+    fs.readdirSync(dir).filter((file) => {
+      return file.endsWith(".js");
+    }).forEach((file) => this.loadCommand(file, dir));
+  }
+
+  /**
+   * @description The &lt;code>login&lt;/code> method is used primarily to invoke the
+   * &lt;code>Discord.Client&lt;/code> method of the same name in a safe manner that
+   * precludes the possibility of double loads. &lt;code>Discord.Client&lt;/code>'s
+   * &lt;code>login&lt;/code> method should only be called once, after which the
+   * &lt;code>Client&lt;/code> class instance's relevant private &lt;code>boolean&lt;/code>
+   * flag should be set to &lt;code>true&lt;/code> to indicate the login was
+   * successful.
+   * @function
+   * @see [Discord.Client#login]{@link
+   * https://discord.js.org/#/docs/main/master/class/Client?scrollTo=login}
+   * @param {string} [token=this.token] - The value of the process environment
+   * variable &lt;code>TOKEN&lt;/code>, referring to the Discord application's client
+   * ID/bot token, provided by Discord when first converting an application to a
+   * bot.
+   * @returns {void}
+   */
+  login (token = this.token) {
+    if (this._loggedIn) {
+      throw new Error(this.lang.client.error.login);
+    }
+
+    this._loggedIn = true;
+    this.client.login(token);
+  }
+}
+
+module.exports = Client;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-client.html">client</a></li><li><a href="module-command.html">command</a></li><li><a href="module-ping.html">ping</a></li><li><a href="module-verify.html">verify</a></li></ul><h3>Classes</h3><ul><li><a href="module-client-Client.html">Client</a></li><li><a href="module-command-Command.html">Command</a></li><li><a href="module-ping-Ping.html">Ping</a></li><li><a href="module-verify-Verify.html">Verify</a></li></ul><h3>Global</h3><ul><li><a href="global.html#Client">Client</a></li><li><a href="global.html#client">client</a></li><li><a href="global.html#config">config</a></li><li><a href="global.html#dotenv">dotenv</a></li><li><a href="global.html#lang">lang</a></li><li><a href="global.html#path">path</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Wed Dec 16 2020 10:14:37 GMT-0500 (Eastern Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
