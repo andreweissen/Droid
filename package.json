@@ -12,7 +12,7 @@
     "url": "git+https://github.com/andreweissen/Droid.git"
   },
   "author": "Andrew Eissen",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/andreweissen/Droid/issues"
   },
