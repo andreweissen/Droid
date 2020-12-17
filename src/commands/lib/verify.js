@@ -1,6 +1,12 @@
 // @ts-check
 /**
- * @file verify.js
+ * @file The <code>verify</code> module serves to encapsulate the class of the
+ * same name. The <code>Verify</code> class, arguably the most important class
+ * after [Client]{@link module:client~Client}, handles the verification of users
+ * seeking access to the server by interfacing with the MediaWiki and Fandom
+ * APIs to determine if the user is a contributor to the wiki. The need for this
+ * functionality was ultimately responsible for the application's creation in
+ * the first place, and the class was among the first written and tested.
  * @module verify
  * @author Andrew Eissen <andrew@andreweissen.com>
  * @requires path
@@ -154,6 +160,7 @@ class Verify extends Command {
    * then informs the user that the appropriate roles have been granted before
    * exiting.
    * @function
+   * @override
    * @see [Command#execute]{@link module:command~Command#execute}
    * @param {Object} message - A new <code>Discord.Message</code> class instance
    * containing information pertaining to the most recent server message, its

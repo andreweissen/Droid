@@ -1,6 +1,10 @@
 // @ts-check
 /**
- * @file ping.js
+ * @file The <code>ping</code> module serves to encapsulate the class of the
+ * same name. The <code>Ping</code> class is used within the context of the bot
+ * application as a simple and function-light means of testing whether the
+ * application is actually online, a required function given that the bot may
+ * often appear to be online while in reality is suffering from a bug.
  * @module ping
  * @author Andrew Eissen <andrew@andreweissen.com>
  * @requires command
@@ -30,6 +34,7 @@ class Ping extends Command {
    * response message in the channel on invocation to indicate to the developer
    * that the application is online and functional.
    * @function
+   * @override
    * @see [Command#execute]{@link module:command~Command#execute}
    * @param {Object} message - A new <code>Discord.Message</code> class instance
    * containing information pertaining to the most recent server message, its

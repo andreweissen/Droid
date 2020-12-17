@@ -1,6 +1,11 @@
 // @ts-check
 /**
- * @file client.js
+ * @file The <code>client</code> module serves to encapsulate the class of the
+ * same name. The <code>Client</code> class represents the most important class
+ * of the application, as it is directly responsible for coordinating responses
+ * to user command invocations, logging replies in the server channels, and
+ * establishing and maintaining a connection to Discord via websocket. It could
+ * be viewed as a tacit extending subclass of <code>Discord.Client</code>.
  * @module client
  * @author Andrew Eissen <andrew@andreweissen.com>
  * @requires fs
@@ -42,10 +47,10 @@ class Client {
   /**
    * @description The <code>Client</code> class constructor, invoked by
    * index.js, is responsible for creating new <code>Discord.Client</code> and
-   * <code>Discord.Collection</code> instances, defining a <code>config</code>
-   * object containing various operation properties, setting various status
-   * <code>boolean</code> flags, and establishing event listeners and their
-   * associated callbacks.
+   * <code>Discord.Collection</code> instances, defining resource objects that
+   * contain various operation properties and raw message text, setting various
+   * status <code>boolean</code> flags, and establishing event listeners and
+   * their associated callbacks.
    * @param {string} token - A process environment variable representing the
    * Discord application's client ID/bot token provided by Discord when first
    * converting an application to a bot.

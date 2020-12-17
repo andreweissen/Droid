@@ -1,6 +1,10 @@
 // @ts-check
 /**
- * @file command.js
+ * @file The <code>command</code> module (there's an Apollo space joke in there
+ * somewhere) serves to encapsulate the class of the same name. The
+ * <code>Command</code> class serves as a largely content-free superclass that
+ * is extended by subsequent subclasses representing specific commands users
+ * may invoke on the server.
  * @module command
  * @author Andrew Eissen <andrew@andreweissen.com>
  */

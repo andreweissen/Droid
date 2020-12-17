@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Class: Resource</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Class: Resource</h1>
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        <h2><span class="attribs"><span class="type-signature"></span></span>
+            <span class="ancestors"><a href="module-resource.html">resource</a>~</span>Resource<span class="signature">(file)</span><span class="type-signature"> &rarr; {Object}</span></h2>
+        
+            <div class="class-description">The <code>Resource</code> class serves as a middleman that handlesall requests for JSON data stored in <code>./src/resources</code>, thecontents of which directory constitute language data representing the text ofmessages logged by the application in the server and various configurationdata coordinating the manner in which the application is run from the user'sperspective.<br /><br />All of these resources are technically user-configurable, meaning that animplementing user may include custom <code>config.json</code> and<code>lang.json</code> files in the root directory if the defaults stored in<code>./src/resources</code> are not sufficient. This class is responsiblefor checking if such custom files exist, and if they do, reconciling theircontents with the default resource values before returning a new<code>Object</code> that reflects the desired changes.<br /><br />The main means by which this is mediated is a <a href="module-resource-Resource.html#extend"><code>pure JS implementation</code></a> of the deep merge/copy functionalityprovided by default in the jQuery library by <a href="https://api.jquery.com/jquery.extend/">$.extend</a>. The default JSON <code>Object</code>of the desired resource is copied and its contents updated with valuesobtained from the user-input file in the home directory, allowing for theinstalling user to not have to copy/paste the entire contents of the desireddefault resource into a custom file just to make a few minor changes.</div>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+
+    
+    <h2>Constructor</h2>
+    
+
+    
+    <h4 class="name" id="Resource"><span class="type-signature"></span>new Resource<span class="signature">(file)</span><span class="type-signature"> &rarr; {Object}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    The <code>Resource</code> constructor handles the sanitationof the input parameter <code>file</code> to ensure it is a properlysuffixed JSON file, checks whether the required custom resource file storedin the home directory by the implementing user exists, and chooses whetherto invoke <code>Resource#extend</code> and reconcile user input withdefault values or simply return the standard default resource file on itsown.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>file</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+|
+
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">A <code>string</code> representation of therequested file resource; this should a properly suffixed JSON file name.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_resources_util_resource.js.html">src/resources/util/resource.js</a>, <a href="src_resources_util_resource.js.html#line41">line 41</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="extend"><span class="type-signature"></span>extend<span class="signature">()</span><span class="type-signature"> &rarr; {Object}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    The <code>Resource#extend</code> method is a handwrittenimplementation of <a href="https://api.jquery.com/jquery.extend/">$.extend</a>,one of the more useful default jQuery methods. Unlike that function,however, this implementation only performs recursive deep merging, not theshallow merge/copy made more readily available ES6+ via default methodslike <code>Object.assign</code>. This function is used to construct a newresource <code>Object</code> that takes the values of the default resourceJSON file and updates extant keys' values with those taken from the userinput JSON file stored in the home directory. This allows for implementingusers to choose only to override certain fields in a custom JSON filerather than having to copy/paste the whole default file just to make a fewadjustments.
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_resources_util_resource.js.html">src/resources/util/resource.js</a>, <a href="src_resources_util_resource.js.html#line92">line 92</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://api.jquery.com/jquery.extend/">$.extend</a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    - Ultimately, an updated resource <code>Object</code>that contains reconciled default values and user input values.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="isObject"><span class="type-signature"></span>isObject<span class="signature">(value)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    This helper function is used by <code>Resource#extend</code>to determine if subsequent recursive invocations of the method are requiredin the event of a nested <code>Object</code> being encountered. The methodsimply checks if the input parameter <code>value</code> is actually an<code>Object</code>, returning a <code>boolean</code> to this effect.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>value</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The value to be checked to determine if its type is<code>Object</code>.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_resources_util_resource.js.html">src/resources/util/resource.js</a>, <a href="src_resources_util_resource.js.html#line121">line 121</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    - A status <code>boolean</code> indicating whether theinput parameter <code>value</code> is of type <code>Object</code>.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">boolean</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-client.html">client</a></li><li><a href="module-command.html">command</a></li><li><a href="module-ping.html">ping</a></li><li><a href="module-resource.html">resource</a></li><li><a href="module-verify.html">verify</a></li></ul><h3>Classes</h3><ul><li><a href="module-client-Client.html">Client</a></li><li><a href="module-command-Command.html">Command</a></li><li><a href="module-ping-Ping.html">Ping</a></li><li><a href="module-resource-Resource.html">Resource</a></li><li><a href="module-verify-Verify.html">Verify</a></li></ul><h3>Global</h3><ul><li><a href="global.html#Client">Client</a></li><li><a href="global.html#client">client</a></li><li><a href="global.html#config">config</a></li><li><a href="global.html#dotenv">dotenv</a></li><li><a href="global.html#lang">lang</a></li><li><a href="global.html#path">path</a></li><li><a href="global.html#Resource">Resource</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Thu Dec 17 2020 18:10:09 GMT-0500 (Eastern Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

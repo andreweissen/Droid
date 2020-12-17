@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "doc": "jsdoc -c jsdoc.json"
+    "doc": "jsdoc -p -c jsdoc.json"
   },
   "repository": {
     "type": "git",
