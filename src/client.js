@@ -153,7 +153,7 @@ class Client {
      * and application diagnosis.
      * @member {boolean}
      */
-    this._debug = true;
+    this._debug = false;
 
     // Set event listeners and associated callbacks
     this.client.on("ready", this.onReady.bind(this));
