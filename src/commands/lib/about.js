@@ -81,41 +81,42 @@ class About extends Command {
   }
 
   /**
-   * @description <code>formatDate</code> is a helper function employed by
+   * @description <code>formatNumber</code> is a helper function employed by
    * [About#timeago]{@link module:about~About#timeago} for the purposes of
    * formatting the calculated time into an English fuzzy date. The method uses
    * regex to separate the raw <code>number</code> passed as the
-   * <code>time</code> parameter into groups of three separated by commas and
-   * determines whether to include a singular or plural time measurement (i.e.
-   * "day" vs "days"). The method is a modification of a similar method first
-   * developed by Wikipedia user [PleaseStand]{@link
+   * <code>num</code> parameter into groups of three separated by commas and
+   * determines whether to include a singular or plural unit of measurement
+   * (i.e. "day" vs "days"). The method is a modification of a similar method
+   * first developed by Wikipedia user [PleaseStand]{@link
    * https://en.wikipedia.org/wiki/User:PleaseStand} for his [Userinfo]{@link
    * https://en.wikipedia.org/wiki/User:PleaseStand/userinfo.js} MediaWiki
    * userscript available for use on the English Wikipedia.
    * @function
    * @see [Userinfo]{@link
    * https://en.wikipedia.org/wiwki/User:PleaseStand/userinfo.js}
-   * @param {number} time - The raw <code>number</code> representing an amount
-   * of time of a certain unit of measurement.
+   * @param {number} num - The raw <code>number</code> representing an amount
+   * of a certain unit of measurement.
    * @param {Object} langMessage - An <code>Object</code> retrieved from
    * <code>/src/resources/lang.json</code> containing a pair of properties
-   * representing the singular and plural forms of the specified unit of time.
+   * representing the singular and plural forms of the specified unit of
+   * measurement.
    * @returns {string} - The formatted <code>string</code> date in English; i.e.
    * "1,234 years" or "1 hour".
    */
-  formatDate (time, langMessage) {
+  formatNumber (num, langMessage) {
 
     // Separate number into groups of three separated by commas
-    const target = new RegExp("\d{1,3}(?=(\d{3})+(?!\d))", "g");
+    const target = new RegExp(/\d{1,3}(?=(\d{3})+(?!\d))/, "g");
 
     // Display singular/plural text depending on number passed as time
-    const text = (time === 1) ? langMessage.singular : langMessage.plural;
+    const text = (num === 1) ? langMessage.singular : langMessage.plural;
 
     // Acquire thousands separator character from lang.json
     const separator = this.lang.success.delimiters.thousands;
 
     // "1,234 seconds" or "1 day"
-    return String(time).replace(target, `$&${separator}`) + " " + text;
+    return String(num).replace(target, `$&${separator}`) + " " + text;
   }
 
   /**
@@ -169,38 +170,38 @@ class About extends Command {
     const timeElapsed = new Date().getTime() - target.getTime();
 
     // Alias
-    const timeLang = this.lang.success.time;
+    const unitsLang = this.lang.success.units;
 
     if (timeElapsed < one.minute) {
       number = Math.floor(timeElapsed / one.second);
-      words = this.formatDate(number, timeLang.second);
+      words = this.formatNumber(number, unitsLang.second);
     } else if (timeElapsed < one.hour) {
       number = Math.floor(timeElapsed / one.minute);
-      words = this.formatDate(number, timeLang.minute);
+      words = this.formatNumber(number, unitsLang.minute);
     } else if (timeElapsed < one.day) {
       number = Math.floor(timeElapsed / one.hour);
-      words = this.formatDate(number, timeLang.hour);
+      words = this.formatNumber(number, unitsLang.hour);
       remainder = Math.floor((timeElapsed - number * one.hour) / one.minute);
 
       if (remainder) {
-        words += ` ${this.formatDate(remainder, timeLang.minute)}`
+        words += ` ${this.formatNumber(remainder, unitsLang.minute)}`
       }
     } else if (timeElapsed < one.week) {
       number = Math.floor(timeElapsed / one.day);
-      words = this.formatDate(number, timeLang.day);
+      words = this.formatNumber(number, unitsLang.day);
     } else if (timeElapsed < one.month) {
       number = Math.floor(timeElapsed / one.week);
-      words = this.formatDate(number, timeLang.week);
+      words = this.formatNumber(number, unitsLang.week);
     } else if (timeElapsed < one.year) {
       number = Math.floor(timeElapsed / one.month);
-      words = this.formatDate(number, timeLang.month);
+      words = this.formatNumber(number, unitsLang.month);
     } else {
       number = Math.floor(timeElapsed / one.year);
-      words = this.formatDate(number, timeLang.year);
+      words = this.formatNumber(number, unitsLang.year);
       remainder = Math.floor((timeElapsed - number * one.year) / one.month);
 
       if (remainder) {
-        words += ` ${this.formatDate(remainder, timeLang.month)}`;
+        words += ` ${this.formatNumber(remainder, unitsLang.month)}`;
       }
     }
 
@@ -275,12 +276,11 @@ class About extends Command {
     const user = data.query.users[0];
     const contribs = data.query.usercontribs[0];
 
-    // Validate/sanitize data for subsequent formatting and posting
+    // Sanitized variables with default fallback values
     const usergroups = Array.isArray(user.groups) ? user.groups : [];
-    const editcount = typeof user.editcount == "number" ? user.editcount : null;
-
-    // Variables with fallback values
-    const username = typeof user.name == "string"
+    const editcount = (typeof user.editcount == "number")
+      ? this.formatNumber(user.editcount, this.lang.success.units.edit) : 0;
+    const username = (typeof user.name == "string")
       ? user.name : fragments.unknownName;
     const gender = (typeof user.gender == "string" && user.gender != "unknown")
       ? user.gender : fragments.unknownGender;
@@ -347,10 +347,8 @@ class About extends Command {
       );
     }
 
-    // Optional editcount value
-    if (editcount) {
-      segments.push(fragments.edits.replace("$1", editcount));
-    }
+    // Apply custom or default editcount value
+    segments.push(fragments.edits.replace("$1", editcount));
 
     // Optional date of last edit
     if (lastEdit) {
