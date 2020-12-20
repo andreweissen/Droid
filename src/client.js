@@ -410,8 +410,10 @@ class Client {
       message.delete();
     }
 
-    // Direct reponse to the user directly
-    message.reply(langMessage).then(msg => {
+    ((deleteMessages)
+      ? message.reply
+      : message.channel.send
+    ).call(null, langMessage).then(msg => {
       if (deleteMessages) {
         msg.delete({
           timeout: this.config.utility.interval
