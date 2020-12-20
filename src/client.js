@@ -145,16 +145,6 @@ class Client {
      */
     this._loggedIn = false;
 
-    /**
-     * @description The <code>_debug</code> <code>boolean</code> property is a
-     * private internal field used to display certain information in the console
-     * when its value is set to <code>true</code>. As its name implies, it
-     * toggles the <code>Client</code> class's debug mode to assist in debugging
-     * and application diagnosis.
-     * @member {boolean}
-     */
-    this._debug = false;
-
     // Set event listeners and associated callbacks
     this.client.on("ready", this.onReady.bind(this));
     this.client.on("error", this.onError.bind(this));
@@ -358,7 +348,7 @@ class Client {
     // Remove command text ("ping", "verify") from args array and lowercase it
     const invokedCommand = args.shift().toLowerCase();
 
-    if (this._debug) {
+    if (this.config.utility.debug) {
       console.log(args, invokedCommand);
     }
 
@@ -458,7 +448,7 @@ class Client {
     // Instantiate new instance of command class and mark as unloaded
     const command = new Command(name, false, this.config, lang);
 
-    if (this._debug) {
+    if (this.config.utility.debug) {
       console.log(`${command.name} -> ${this.commands.has(command.name)}`);
     }
 

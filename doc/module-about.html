@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Module: ping</title>
+    <title>JSDoc: Module: about</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Module: ping</h1>
+    <h1 class="page-title">Module: about</h1>
 
     
 
@@ -38,7 +38,7 @@
     <div class="container-overview">
     
         
-            <div class="description">The <code>ping</code> module serves to encapsulate the class of thesame name. The <code>Ping</code> class is used within the context of the botapplication as a simple and function-light means of testing whether theapplication is actually online, a required function given that the bot mayoften appear to be online while in reality is suffering from a bug.</div>
+            <div class="description">The <code>about</code> module serves to encapsulate the class of thesame name. The <code>About</code> class extends the default <a href="module-command-Command.html"><code>Command</code></a> class and handles requests for information about agiven user passed as a parameter in the command invocation. The class queriesthe MediaWiki API for information about the given user, including gender,registration date, date of last edit, user group membership, etc.</div>
         
 
         
@@ -94,7 +94,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_commands_lib_ping.js.html">src/commands/lib/ping.js</a>, <a href="src_commands_lib_ping.js.html#line2">line 2</a>
+        <a href="src_commands_lib_about.js.html">src/commands/lib/about.js</a>, <a href="src_commands_lib_about.js.html#line2">line 2</a>
     </li></ul></dd>
     
 
@@ -134,6 +134,10 @@
         <h3 class="subsection-title">Requires</h3>
 
         <ul>
+            <li>module:path</li>
+        
+            <li>module:got</li>
+        
             <li><a href="module-command.html">module:command</a></li>
         </ul>
     
@@ -142,7 +146,7 @@
         <h3 class="subsection-title">Classes</h3>
 
         <dl>
-            <dt><a href="module-ping-Ping.html">Ping</a></dt>
+            <dt><a href="module-about-About.html">About</a></dt>
             <dd></dd>
         </dl>
     
@@ -212,7 +216,151 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_commands_lib_ping.js.html">src/commands/lib/ping.js</a>, <a href="src_commands_lib_ping.js.html#line14">line 14</a>
+        <a href="src_commands_lib_about.js.html">src/commands/lib/about.js</a>, <a href="src_commands_lib_about.js.html#line23">line 23</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="~got"><span class="type-signature">(inner, constant) </span>got<span class="type-signature"> :Object</span></h4>
+
+
+
+
+<div class="description">
+    Got module
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">Object</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_commands_lib_about.js.html">src/commands/lib/about.js</a>, <a href="src_commands_lib_about.js.html#line20">line 20</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="~path"><span class="type-signature">(inner, constant) </span>path<span class="type-signature"> :Object</span></h4>
+
+
+
+
+<div class="description">
+    Path module
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">Object</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_commands_lib_about.js.html">src/commands/lib/about.js</a>, <a href="src_commands_lib_about.js.html#line17">line 17</a>
     </li></ul></dd>
     
 

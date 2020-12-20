@@ -13,12 +13,22 @@
   "commands": {
     "prefix": "!",
     "names": {
+      "about": "about",
       "verify": "verify",
       "ping": "ping"
     }
   },
+  "groups": {
+    "bureaucrat": "Bureaucrat",
+    "sysop": "Administrator",
+    "content-moderator": "Content Moderator",
+    "threadmoderator": "Discussions Moderator",
+    "chatmoderator": "Chat Moderator",
+    "rollback": "Rollbacker"
+  },
   "utility": {
     "subdomain": "swfanon",
+    "debug": false,
     "interval": 5000
   }
 }

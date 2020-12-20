@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: Verify</title>
+    <title>JSDoc: Class: About</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: Verify</h1>
+    <h1 class="page-title">Class: About</h1>
 
     
 
@@ -29,9 +29,9 @@
 <header>
     
         <h2><span class="attribs"><span class="type-signature"></span></span>
-            <span class="ancestors"><a href="module-verify.html">verify</a>~</span>Verify<span class="signature">()</span><span class="type-signature"></span></h2>
+            <span class="ancestors"><a href="module-about.html">about</a>~</span>About<span class="signature">()</span><span class="type-signature"></span></h2>
         
-            <div class="class-description">Arguably the most important command and the second most importantclass in the bot application apart from <a href="module-client-Client.html"><code>Client</code></a>,the <code>Verify</code> class handles verification requests issued bypotential server members in the verify channel. As all prospective membersare required to be contributing users on the wiki with edits to theirusername, the class makes a number of calls to the MediaWiki and Fandom APIsto ensure that 1) the claimed Fandom username posted by the potential memberas part of the verification request matches an extant and active Fandomaccount and 2) the Discord username of the requesting member matches theDiscord handle listed in the Fandom account's userpage masthead. This methodserves to prevent spoofing or impersonation and limits the possibility ofserver raids by ensuring that only legitimate contributors may join theserver.</div>
+            <div class="class-description">The <code>About</code> class is a subclass extending the default<a href="module-command-Command.html"><code>Command</code></a> class that handles requests forinformation pertaining to the given user whose username is passed as theparimary argument. The original implementation of this functionality was morein line with the SWF wiki's old Freenode IRC bot, Jules, which would post ahumorous comment in the IRC channel about a queried user.<br /><br />However, the subsequent rewrite of the <code>About</code> command subclasswas undertaken with the intention of making the command more useful as ameans of acquiring identifying information about a given Wikia/Fandom accountwithout having to manually poke around on the user's userpage. The updatedversion's design ethos and general layout was based on <a href="https://en.wikipedia.org/wiwki/User:PleaseStand/userinfo.js">Userinfo</a>, a JavaScriptuserscript published on the English Wikipedia and developed by Wikipediauser <a href="https://en.wikipedia.org/wiki/User:PleaseStand">PleaseStand</a>.</div>
         
     
 </header>
@@ -46,7 +46,7 @@
     
 
     
-    <h4 class="name" id="Verify"><span class="type-signature"></span>new Verify<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="About"><span class="type-signature"></span>new About<span class="signature">()</span><span class="type-signature"></span></h4>
     
 
     
@@ -94,12 +94,19 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_commands_lib_verify.js.html">src/commands/lib/verify.js</a>, <a href="src_commands_lib_verify.js.html#line45">line 45</a>
+        <a href="src_commands_lib_about.js.html">src/commands/lib/about.js</a>, <a href="src_commands_lib_about.js.html#line47">line 47</a>
     </li></ul></dd>
     
 
     
 
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://en.wikipedia.org/wiwki/User:PleaseStand/userinfo.js">Userinfo</a></li>
+        </ul>
+    </dd>
     
 
     
@@ -126,17 +133,6 @@
 
     
     </div>
-
-    
-        <h3 class="subsection-title">Extends</h3>
-
-        
-
-
-    <ul>
-        <li>Command</li>
-    </ul>
-
 
     
 
@@ -169,7 +165,7 @@
 
 
 <div class="description">
-    As the subclass's implementation of the default<a href="module-command-Command.html#execute"><code>Command#execute</code></a> method required forimplementation by the <code>Command</code> superclass, this functionhandles the verification process progression, assisted by a number ofhelper functions used to query the Fandom and MediaWiki APIs for user info.<br /><br />The method first checks to see if the message was logged in the verifychannel, determines if the user included a username with the commandinvocation, and sees if the user already has the "User" role, logging anappropriate message in the channel if any of these conditions are found tobe true.<br /><br />Otherwise, the method then queries the MediaWiki API to retrieve relevantaccount information about the given username, such as the number of edits,registration date, user group memberships, etc. Server errors are handledwith appropriate messages, but if the query was successful and returnedwellformed data, the method checks next to see if the user accountspecified exists, logging a warning if it doesn't. If the account doesexists but lacks edits, the method will again warn and exit.<br /><br />Once the user account has been determined to exist, the method then queriesFandom's service API to retrieve the value of the Discord handle displayedon the userpage masthead, a field which may only be edited by the accountthat owns the userpage. If no field value is found or if the mastheadvalue displays a different Discord handle than the one belonging to theinvoking Discord user, the method logs a message. However, if the handlesmatch, the method then proceeds into the role-granting portion of theprogression.<br /><br />Now cleared to grant roles, the method checks to see if the user is in oneof the three user rights groups on the wiki that could previously moderatethe pre-UCP Special:Chat extension on the wiki (this is the default,adjustable via the config file). If so, the method grants the ChatModerator role. Otherwise, it simply grants the standard user role, logs anew message in the directory channel to help mitigate username confusion,then informs the user that the appropriate roles have been granted beforeexiting.
+    As the subclass's implementation of the default<a href="module-command-Command.html#execute"><code>Command#execute</code></a> method required forimplementation by the <code>Command</code> superclass, this functionhandles requests for information pertaining to a given Fandom account. Themethod queries the <a href="https://www.mediawiki.org/wiki/API:Users">Users</a>and <a href="https://www.mediawiki.org/wiki/API:Usercontribs">Usercontribs</a>endpoints to retrieve information about the user's registration date,gender, user group membership, editcount, and date of last edit, formattingthis information in a readable format complete with fuzzy dates beforeposting the results in the relevant server channel.<br /><br />The original incarnation of this method (and the greater command subclassitself) was primarily based on the SWF wiki's old Freenode IRC bot Jules,which would post a humorous comment about a queried user in the serverchannel on invocation. However, this "about" functionality was eventuallyreplaced in favor of a more useful, more informative moderatorial tool thatcould provide comprehensive information about a given user account,including semi-private information that would be otherwise obfuscated dueto not being displayed on userpage mastheads and other publicly accessiblepage elements.
 </div>
 
 
@@ -308,7 +304,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_commands_lib_verify.js.html">src/commands/lib/verify.js</a>, <a href="src_commands_lib_verify.js.html#line183">line 183</a>
+        <a href="src_commands_lib_about.js.html">src/commands/lib/about.js</a>, <a href="src_commands_lib_about.js.html#line252">line 252</a>
     </li></ul></dd>
     
 
@@ -369,7 +365,7 @@
     
 
     
-    <h4 class="name" id="getMastheadValue"><span class="type-signature"></span>getMastheadValue<span class="signature">(userid)</span><span class="type-signature"> &rarr; {Object}</span></h4>
+    <h4 class="name" id="formatDate"><span class="type-signature"></span>formatDate<span class="signature">(time, langMessage)</span><span class="type-signature"> &rarr; {string}</span></h4>
     
 
     
@@ -377,7 +373,7 @@
 
 
 <div class="description">
-    One of the two query methods of the <code>Verify</code> class,<code>getMastheadValue</code> is used to return the Discord handle shownin the specified parameter user account's userpage masthead.
+    <code>formatDate</code> is a helper function employed by<a href="module-about-About.html#timeago"><code>About#timeago</code></a> for the purposes offormatting the calculated time into an English fuzzy date. The method usesregex to separate the raw <code>number</code> passed as the<code>time</code> parameter into groups of three separated by commas anddetermines whether to include a singular or plural time measurement (i.e."day" vs "days"). The method is a modification of a similar method firstdeveloped by Wikipedia user <a href="https://en.wikipedia.org/wiki/User:PleaseStand">PleaseStand</a> for his <a href="https://en.wikipedia.org/wiki/User:PleaseStand/userinfo.js">Userinfo</a> MediaWikiuserscript available for use on the English Wikipedia.
 </div>
 
 
@@ -413,16 +409,13 @@
 
         <tr>
             
-                <td class="name"><code>userid</code></td>
+                <td class="name"><code>time</code></td>
             
 
             <td class="type">
             
                 
 <span class="param-type">number</span>
-|
-
-<span class="param-type">string</span>
 
 
             
@@ -432,7 +425,30 @@
 
             
 
-            <td class="description last">The specific user ID of the Fandom accountin question, obtained from the earlier <code>getUserInfo</code> invocation.</td>
+            <td class="description last">The raw <code>number</code> representing an amountof time of a certain unit of measurement.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>langMessage</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">An <code>Object</code> retrieved from<code>/src/resources/lang.json</code> containing a pair of propertiesrepresenting the singular and plural forms of the specified unit of time.</td>
         </tr>
 
     
@@ -473,12 +489,19 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_commands_lib_verify.js.html">src/commands/lib/verify.js</a>, <a href="src_commands_lib_verify.js.html#line86">line 86</a>
+        <a href="src_commands_lib_about.js.html">src/commands/lib/about.js</a>, <a href="src_commands_lib_about.js.html#line106">line 106</a>
     </li></ul></dd>
     
 
     
 
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://en.wikipedia.org/wiwki/User:PleaseStand/userinfo.js">Userinfo</a></li>
+        </ul>
+    </dd>
     
 
     
@@ -502,7 +525,7 @@
 
         
 <div class="param-desc">
-    - Making use of the <code>got</code> module's<code>Promise.json</code>, the method returns raw JSON data retrieved fromthe MediaWiki API query rather than a resolved or rejected promise object.
+    - The formatted <code>string</code> date in English; i.e."1,234 years" or "1 hour".
 </div>
 
 
@@ -513,7 +536,7 @@
     </dt>
     <dd>
         
-<span class="param-type">Object</span>
+<span class="param-type">string</span>
 
 
     </dd>
@@ -539,7 +562,7 @@
 
 
 <div class="description">
-    One of the two query methods of the <code>Verify</code> class,<code>getUserInfo</code> is used to return general-purpose data about theFandom account associated with the parameter username. The query returnsdata related to the account's user rights groups and associated permissionsand information regarding the account's edit count and registration date.
+    <code>getUserInfo</code> is used to return general-purposedata about the Fandom account associated with the parameter username. Thequery returns data related to the account's user rights groups andassociated permissions and information regarding the account's edit count,gender, block data, date of last edit, and registration date. The methodqueries the <a href="https://www.mediawiki.org/wiki/API:Users">Users</a> and<a href="https://www.mediawiki.org/wiki/API:Usercontribs">Usercontribs</a>endpoints to this end.
 </div>
 
 
@@ -632,7 +655,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_commands_lib_verify.js.html">src/commands/lib/verify.js</a>, <a href="src_commands_lib_verify.js.html#line60">line 60</a>
+        <a href="src_commands_lib_about.js.html">src/commands/lib/about.js</a>, <a href="src_commands_lib_about.js.html#line65">line 65</a>
     </li></ul></dd>
     
 
@@ -642,7 +665,7 @@
     <dt class="tag-see">See:</dt>
     <dd class="tag-see">
         <ul>
-            <li><a href="module-about-About.html#getUserInfo"><code>About#getUserInfo</code></a></li>
+            <li><a href="module-verify-Verify.html#getUserInfo"><code>Verify#getUserInfo</code></a></li>
         </ul>
     </dd>
     
@@ -697,7 +720,7 @@
     
 
     
-    <h4 class="name" id="shouldBeChatModerator"><span class="type-signature"></span>shouldBeChatModerator<span class="signature">(groups)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    <h4 class="name" id="timeago"><span class="type-signature"></span>timeago<span class="signature">(target)</span><span class="type-signature"> &rarr; {string}</span></h4>
     
 
     
@@ -705,7 +728,7 @@
 
 
 <div class="description">
-    The <code>shouldBeChatModerator</code> helper method is usedto determine whether the user whose list of user groups are passed as aparameter possesses the requisite user rights to merit the Chat Moderatorrole on the Discord server. As a nod to Fandom's now-deprecated<code>Special:Chat</code> extension from which the Chat Moderator userright originated, only those on-wiki user groups who possessed moderatorrights on Special:Chat (namely, Administrator, Discussions Moderator, andChat Moderator) are provided the Chat Moderator role on the server.
+    Named in reference to the jQuery plugin <a href="https://github.com/rmm5t/jquery-timeago">$.timeago</a> available by default onWikia/Fandom wikis, <code>About#timeago</code> is used as a means ofbuilding so-called "fuzzy dates" that estimate in English the amount oftime elapsed in a given interval. In such cases, rather than provide anexact amount of milliseconds, the method will convert to readable units ofmeasurement to produce outputs like "15 hours ago" or "10 years 2 monthsold" for various intervals. This functionality is used by <a href="module-about-About.html#execute"><code>execute</code></a> for the purposes of estimating account ages anddurations since a user's last edit.<br /><br />The specific implementation contained in this method is an updated version\of a similar function first developed by Wikipedia user <a href="https://en.wikipedia.org/wiki/User:PleaseStand">PleaseStand</a> for his <a href="https://en.wikipedia.org/wiki/User:PleaseStand/userinfo.js">Userinfo</a> MediaWikiuserscript available for use on the English Wikipedia.
 </div>
 
 
@@ -741,13 +764,16 @@
 
         <tr>
             
-                <td class="name"><code>groups</code></td>
+                <td class="name"><code>target</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Array.&lt;string></span>
+<span class="param-type">Date</span>
+|
+
+<span class="param-type">*</span>
 
 
             
@@ -757,7 +783,7 @@
 
             
 
-            <td class="description last"><code>Array</code> of <code>string</code>sindicating which MediaWiki user rights the user in question possesses onthe wiki.</td>
+            <td class="description last">A <code>Date</code> object instance related to atimestamp <code>string</code> passed in MediaWiki API query data from an<code>About#getUserData</code> invocatin.</td>
         </tr>
 
     
@@ -798,12 +824,19 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_commands_lib_verify.js.html">src/commands/lib/verify.js</a>, <a href="src_commands_lib_verify.js.html#line113">line 113</a>
+        <a href="src_commands_lib_about.js.html">src/commands/lib/about.js</a>, <a href="src_commands_lib_about.js.html#line149">line 149</a>
     </li></ul></dd>
     
 
     
 
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://en.wikipedia.org/wiwki/User:PleaseStand/userinfo.js">Userinfo</a></li>
+        </ul>
+    </dd>
     
 
     
@@ -827,7 +860,7 @@
 
         
 <div class="param-desc">
-    - A <code>boolean</code> value denoting whether theuser whose user groups were passed as the parameter possesses the rightsnecessary to merit the Chat Moderator role on the Discord server.
+    words - A readable English fuzzy date estimating theamount of time elapsed in the given interval calculated from subtractingthe <code>target</code> time from the current time.
 </div>
 
 
@@ -838,7 +871,7 @@
     </dt>
     <dd>
         
-<span class="param-type">boolean</span>
+<span class="param-type">string</span>
 
 
     </dd>

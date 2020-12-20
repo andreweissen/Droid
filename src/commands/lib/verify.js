@@ -51,6 +51,7 @@ class Verify extends Command {
    * data related to the account's user rights groups and associated permissions
    * and information regarding the account's edit count and registration date.
    * @function
+   * @see [About#getUserInfo]{@link module:about~About#getUserInfo}
    * @param {string} username - The name of the Fandom account to be queried
    * @returns {Object} - Making use of the <code>got</code> module's
    * <code>Promise.json</code>, the method returns raw JSON data retrieved from
