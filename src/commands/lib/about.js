@@ -275,8 +275,9 @@ class About extends Command {
     const user = data.query.users[0];
     const contribs = data.query.usercontribs[0];
 
-    // Validate/sanitize data for subsequent formatting and postign
+    // Validate/sanitize data for subsequent formatting and posting
     const usergroups = Array.isArray(user.groups) ? user.groups : [];
+    const username = typeof user.name == "string" ? user.name : null;
     const editcount = typeof user.editcount == "number" ? user.editcount : null;
     const gender = typeof user.gender == "string" ? user.gender : null;
 
@@ -309,14 +310,14 @@ class About extends Command {
     });
 
     if (isBlocked) {
-      groups.unshift(this.lang.success.groups.blocked);
+      groups.unshift(fragments.blocked.replace("$1", username));
     } else if (isAutoconfirmed) {
-      groups.unshift(this.lang.success.groups.autoconfirmed);
+      groups.unshift(fragments.autoconfirmed.replace("$1", username));
     }
 
     switch (groups.length) {
       case 0:
-        segments.push(this.config.groups.default);
+        segments.push(fragments.default.replace("$1", username));
         break;
       case 1:
         segments.push(groups[0]);
@@ -350,7 +351,7 @@ class About extends Command {
       segments.push(fragments.lastEdit.replace("$1", this.timeago(lastEdit)));
     }
 
-    const output = "\n" + (lastEdit)
+    const output = (lastEdit)
       ? segments.slice(0, -1).join(`${delimiters.separator} `) +
         delimiters.terminator + " " + segments[segments.length - 1] +
         delimiters.terminator

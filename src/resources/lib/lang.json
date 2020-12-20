@@ -47,12 +47,10 @@
             "plural": "years"
           }
         },
-        "groups": {
-          "autoconfirmed": "An autoconfirmed user",
-          "blocked": "A blocked user",
-          "default": "A user"
-        },
         "fragments": {
+          "autoconfirmed": "$1 is an autoconfirmed user",
+          "blocked": "$1 is a blocked user",
+          "default": "$1 is a registered user",
           "registration": "$1 old",
           "edits": "with $1 edits",
           "lastEdit": "Last edited $1 ago"
