@@ -277,9 +277,13 @@ class About extends Command {
 
     // Validate/sanitize data for subsequent formatting and posting
     const usergroups = Array.isArray(user.groups) ? user.groups : [];
-    const username = typeof user.name == "string" ? user.name : null;
     const editcount = typeof user.editcount == "number" ? user.editcount : null;
-    const gender = typeof user.gender == "string" ? user.gender : null;
+
+    // Variables with fallback values
+    const username = typeof user.name == "string"
+      ? user.name : fragments.unknownName;
+    const gender = (typeof user.gender == "string" && user.gender != "unknown")
+      ? user.gender : fragments.unknownGender;
 
     // Boolean flags
     const isInvalid = user.hasOwnProperty("invalid");
@@ -323,7 +327,7 @@ class About extends Command {
         segments.push(groups[0]);
         break;
       case 2:
-        segments.push(`${groups[0]} ${delimiters.conjunction}  ${groups[1]}`);
+        segments.push(`${groups[0]} ${delimiters.conjunction} ${groups[1]}`);
         break;
       default:
         segments.push(
@@ -333,22 +337,28 @@ class About extends Command {
         );
     }
 
-    if (gender) {
-      segments.push(gender);
-    }
+    // Apply gender ("male", "female", or "unknown gender")
+    segments.push(gender);
 
+    // Optional registration fuzzy date
     if (registration) {
       segments.push(
         fragments.registration.replace("$1", this.timeago(registration))
       );
     }
 
+    // Optional editcount value
     if (editcount) {
       segments.push(fragments.edits.replace("$1", editcount));
     }
 
+    // Optional date of last edit
     if (lastEdit) {
       segments.push(fragments.lastEdit.replace("$1", this.timeago(lastEdit)));
+    }
+
+    if (this.config.utility.debug) {
+      console.log(segments);
     }
 
     const output = (lastEdit)

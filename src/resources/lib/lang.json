@@ -51,6 +51,8 @@
           "autoconfirmed": "$1 is an autoconfirmed user",
           "blocked": "$1 is a blocked user",
           "default": "$1 is a registered user",
+          "unknownGender": "unknown gender",
+          "unknownName": "Queried subject",
           "registration": "$1 old",
           "edits": "with $1 edits",
           "lastEdit": "Last edited $1 ago"
