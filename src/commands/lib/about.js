@@ -115,7 +115,7 @@ class About extends Command {
     const separator = this.lang.success.delimiters.thousands;
 
     // "1,234 seconds" or "1 day"
-    return String(time).replace(target, `$&${separator}`) + "\u00a0" + text;
+    return String(time).replace(target, `$&${separator}`) + " " + text;
   }
 
   /**
@@ -183,7 +183,7 @@ class About extends Command {
       remainder = Math.floor((timeElapsed - number * one.hour) / one.minute);
 
       if (remainder) {
-        words += "\u00a0" +  this.formatDate(remainder, timeLang.minute);
+        words += ` ${this.formatDate(remainder, timeLang.minute)}`
       }
     } else if (timeElapsed < one.week) {
       number = Math.floor(timeElapsed / one.day);
@@ -200,7 +200,7 @@ class About extends Command {
       remainder = Math.floor((timeElapsed - number * one.year) / one.month);
 
       if (remainder) {
-        words += "\u00a0" +  this.formatDate(remainder, timeLang.month);
+        words += ` ${this.formatDate(remainder, timeLang.month)}`;
       }
     }
 
