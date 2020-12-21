@@ -3,7 +3,7 @@
     "error": {
       "error": "Error",
       "login": "Error: Already logged in",
-      "unrelated": "this channel's messages are restricted to verification requests only",
+      "unrelated": "this channel's messages are restricted to verification requests only.",
       "nonexistent": "no command by that name found."
     },
     "success": {
