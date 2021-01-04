@@ -200,7 +200,12 @@ class Verify extends Command {
 
     // Format username and query MW API for details
     wikiUsername = args.join(" ").trim();
-    userInfo = await this.getUserInfo(wikiUsername);
+
+    try {
+      userInfo = await this.getUserInfo(wikiUsername);
+    } catch (e) {
+      userInfo = {error: e};
+    }
 
     // Handle server errors
     if (userInfo.error) {
@@ -220,7 +225,12 @@ class Verify extends Command {
       return logReply(message, this.lang.error.edits);
     }
 
-    verifyUser = await this.getMastheadValue(user.userid);
+    // Handle edge case of users who never provided initial handle values
+    try {
+      verifyUser = await this.getMastheadValue(user.userid);
+    } catch (e) {
+      verifyUser = {};
+    }
 
     // Handle missing masthead Discord handle values
     if (!verifyUser.hasOwnProperty("value") || !verifyUser.value.length) {
