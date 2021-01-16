@@ -64,9 +64,13 @@ class Verify extends Command {
     ), {
       searchParams: {
         action: "query",
-        list: "users",
+        list: "users|usercontribs|logevents",
         usprop: "groups|editcount",
+        uclimit: 1,
+        lelimit: 1,
         ususers: username,
+        ucuser: username,
+        leuser: username,
         format: "json"
       }
     }).json();
@@ -181,7 +185,7 @@ class Verify extends Command {
    */
   // @ts-ignore
   async execute (message, args, logReply) {
-    let userInfo, verifyUser, wikiUsername, user;
+    let userInfo, verifyUser, wikiUsername, user, contribs, events;
 
     // Only permit verify commands in the verify channel
     if (message.channel.id !== this.config.channels.verify) {
@@ -213,7 +217,10 @@ class Verify extends Command {
       return logReply(message, this.lang.error.server);
     }
 
+    // Cache results of query
     user = userInfo.query.users[0];
+    contribs = userInfo.query.usercontribs;
+    events = userInfo.query.logevents;
 
     // Handle cases of nonexistent username for which no data exists
     if (!user || !user.userid) {
@@ -221,7 +228,7 @@ class Verify extends Command {
     }
 
     // Only users with edits on the wiki may join the server
-    if (user.editcount === 0) {
+    if (user.editcount === 0 || (!contribs.length && !events.length)) {
       return logReply(message, this.lang.error.edits);
     }
 
