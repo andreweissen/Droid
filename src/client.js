@@ -128,9 +128,9 @@ class Client {
      * additions of command classes is possible.
      * @member {Discord.Collection}
      * @see [Discord.Collection]{@link
-     * https://discord.js.org/#/docs/collection/master/class/Collection}
-     */
-    this.commands = new Discord.Collection();
+      * https://discord.js.org/#/docs/collection/master/class/Collection}
+      */
+    this.extensions = new Discord.Collection();
 
     /**
      * @description The <code>_loggedIn</code> <code>boolean</code> property is
@@ -145,10 +145,17 @@ class Client {
      */
     this._loggedIn = false;
 
-    // Set event listeners and associated callbacks
+    // Load extensions and populate Collection with objects
+    this.loadExtensionDir(path.join(__dirname, "extensions"));
+
+    // Set default event listeners and associated callbacks
     this.client.on("ready", this.onReady.bind(this));
     this.client.on("error", this.onError.bind(this));
-    this.client.on("message", this.onMessage.bind(this));
+
+    // Set custom event listeners on new message
+    this.extensions.forEach(extension => {
+      this.client.on("message", extension.onMessage.bind(extension));
+    });
   }
 
   /**
@@ -265,217 +272,14 @@ class Client {
     return console.error(this.lang.client.error.error, error);
   }
 
-  /**
-   * @description Arguably the most important method of the <code>Client</code>
-   * class, <code>onMessage</code> serves as the primary event listener callback
-   * handling "message" events. As such, it is responsible for checking to see
-   * if the bot application should take an interest in the most recent message,
-   * namely the [Discord.Message]{@link
-   * http://discord.js.org/#/docs/main/master/class/Message} instance that is
-   * passed as the method's sole parameter. If the message is determined to
-   * constitute a command invocation, the method will check to see if a command
-   * matching the invoked name exists in [Client#commands]{@link
-   * module:client~Client#commands}, the [Discord.Collection]{@link
-   * https://discord.js.org/#/docs/collection/master/class/Collection}
-   * containing all previously instantiated command subclasses corresponding to
-   * available command functionality. If so, the method invokes the relevant
-   * implementation of [Command#execute]{@link module:command~Command#execute}
-   * to pass the execution progression off to the relevant subclass.
-   * <br />
-   * <br />
-   * On a more detailed level, the method begins by checking if the user has
-   * attempted to post a non-verification message in the verify channel, logging
-   * the message in the moderator logs channel if so before deleting the message
-   * and adding a timed reply in response. Otherwise, if the message was a
-   * normal user post in another channel rather than a command invocation, the
-   * method ignores it and returns to await the next message.
-   * <br />
-   * <br />
-   * However, if the message does constitute a wellformed command invocation,
-   * the method will validate the input and attempt to locate an available
-   * command matching the desired command. If one is found, the method will then
-   * query <code>Client#commands</code> to see if an instance of the appropriate
-   * command subclass extending [Command]{@link module:command~Command} exists,
-   * invoking [Client#loadCommand]{@link module:client~Client#loadCommand} if
-   * not. Execution is then handed off to the <code>Command#execute</code>
-   * method to address the required command action.
-   * @function
-   * @param {Object} message - A new <code>Discord.Message</code> class instance
-   * containing information pertaining to the most recent server message, its
-   * author, and the channel in which it was posted, among other data.
-   * @returns {void}
-   */
-  onMessage (message) {
-    const commands = this.config.commands;
-    const channels = this.config.channels;
-    const lang = this.lang.client;
+  loadExtension (file, dir) {
 
-    /*
-     * If the posting user is not a bot and is posting non-verification messages
-     * in the Verify channel, the application will post the contents of that
-     * message in the moderator-restricted "logs" channel as an attributed
-     * indented quotation before deleting the original message from the verify
-     * channel. The bot will then post a follow-up reply addressed to the user
-     * that informs of the channel's intended purposes. This reply will
-     * self-delete after the provided interval.
-     */
-    if (
-      !message.author.bot &&
-      (message.channel.id === channels.verify) &&
-      (!message.content.startsWith(commands.prefix + commands.names.verify))
-    ) {
-      // Post in Chat Moderator "logs" channel
-      message.client.channels.cache.get(channels.logs).send(
-        `${message.author.tag}:\n> ${message.content}`
-      );
-
-      // Add self-deleting informational message
-      return this.addReply(message, lang.error.unrelated);
-    }
-
-    /*
-     * Take no further interest if the poster is a bot (avoid instant
-     * self-deletion of above timed replies) or if the message doesn't start
-     * with the command prefix.
-     */
-    if (!message.content.startsWith(commands.prefix) || message.author.bot) {
-      return;
-    }
-
-    // Remove prefix and convert to array of strings, i.e. ["verify", "Sebolto"]
-    const args = message.content.slice(commands.prefix.length).split(/ +/);
-
-    // Remove command text ("ping", "verify") from args array and lowercase it
-    const invokedCommand = args.shift().toLowerCase();
-
-    if (this.config.utility.debug) {
-      console.log(args, invokedCommand);
-    }
-
-    // Check that invoked command is actually an implemented command subclass
-    const command = Object.keys(commands.names).find(key => {
-      return commands.names[key] === invokedCommand;
-    });
-
-    // Handle nonexistent command invocations
-    if (!command) {
-      return this.addReply(message, lang.error.nonexistent);
-    }
-
-    /*
-     * Check if the <code>Client</code> instance's
-     * <code>Discord.Collection</code> (extends <code>Map</code>) already has
-     * the queried command, implying that <code>loadCommand</code> has already
-     * been invoked and a new instance of this command's class created and
-     * stored.
-     */
-    if (!this.commands.has(command)) {
-      try {
-        this.loadCommand(`${command}.js`);
-      } catch (error) {
-        return console.error(lang.error.error, error);
-      }
-    }
-
-    // Acquire class instance and invoke the execute method
-    this.commands.get(command).execute(message, args, this.addReply.bind(this));
   }
 
-  /**
-   * @description The <code>addReply</code> method is used to log a new reply
-   * directed at the user invoking the given command that provides information
-   * about the state of the request. A copy of this function bound to the
-   * <code>Client</code> class instance to which the method belongs is passed to
-   * each command subclasses's [execute]{@link Command#execute} method to
-   * ensure that the <code>Client</code> class is the only module to interact
-   * with the server channels. Subclasses extending [Command]{@link Command}
-   * should only contain application logic related to those commands, leaving
-   * the posting of results to this method.
-   * @function
-   * @param {Object} message - A new [Discord.Message]{@link
-   * http://discord.js.org/#/docs/main/master/class/Message} class instance
-   * containing information pertaining to the most recent server message, its
-   * author, and the channel in which it was posted, among other data.
-   * @param {string} langMessage - The text of the specific message to log,
-   * generally a relevant property of [lang]{@link module:client~Client#lang}.
-   * @param {boolean} [deleteMessages=true] - A <code>boolean</code> flag
-   * denoting whether to delete the poster's original message and the bot's
-   * reply after the interval defined in [config]{@link
-   * module:client~Client#config} has elapsed. This optional field is set to
-   * <code>true</code> by default.
-   * @returns {void}
-   */
-  addReply (message, langMessage, deleteMessages = true) {
-    if (deleteMessages) {
-      message.delete();
-    }
-
-    // Direct reponse to the user directly
-    message.reply(langMessage).then(msg => {
-      if (deleteMessages) {
-        msg.delete({
-          timeout: this.config.utility.interval
-        });
-      }
-    }).catch(console.error);
-  }
-
-  /**
-   * @description As its name implies, <code>loadCommand</code> is used to
-   * create a new class instance of the command class specified in the
-   * <code>file</code> parameter and add that newly created instance to the
-   * <code>Client</code> instance's <code>Discord.Collection</code> map for
-   * subsequent retrieval and usage.
-   * @function
-   * @param {string} file - The name of the requested command to load (should
-   * come suffixed with "<code>.js</code>" in all cases)
-   * @param {string} [dir=path.join(__dirname, "commands", "lib")] - Directory
-   * name in which the parameter command file may be found (default is
-   * <code>./commands/lib</code>)
-   * @returns {void}
-   */
-  loadCommand (file, dir = path.join(__dirname, "commands", "lib")) {
-
-    // Get module exports of requested command file
-    const Command = require(path.join(dir, file));
-
-    // Command#name field value from name of the JS file in question
-    const name = file.split(".")[0];
-
-    // Command subclass-specific bot messages from this.lang.commands
-    const lang = this.lang.commands[name];
-
-    // Instantiate new instance of command class and mark as unloaded
-    const command = new Command(name, false, this.config, lang);
-
-    if (this.config.utility.debug) {
-      console.log(`${command.name} -> ${this.commands.has(command.name)}`);
-    }
-
-    // Add new command to map if not already extant and mark as loaded
-    if (!this.commands.has(command.name) && !command.loaded) {
-      this.commands.set(command.name, command);
-      command.loaded = true;
-    }
-  }
-
-  /**
-   * @description The <code>loadCommandDir</code> method is used to fetch the
-   * <code>string</code> names representing files stored in the parameter
-   * directory, filter out those that are not properly suffixed "js" JavaScript
-   * modules, and invoke [loadCommand]{@link module:client~Client#loadCommand}
-   * on those those for the purposes of populating the <code>Client</code> class
-   * instance's <code>Discord.Collection</code> map.
-   * @function
-   * @param {string} dir - Directory <code>Array</code> of <code>string</code>
-   * file names (<code>./src/commands/lib</code> when invoked by
-   * {@link index.js})
-   * @returns {void}
-   */
-  loadCommandDir (dir) {
+  loadExtensionDir (dir) {
     fs.readdirSync(dir).filter((file) => {
-      return file.endsWith(".js");
-    }).forEach((file) => this.loadCommand(file, dir));
+      return file.endsWith("index.js");
+    }).forEach((file) => this.loadExtension(file, dir));
   }
 
   /**

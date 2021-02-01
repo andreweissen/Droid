@@ -3,14 +3,13 @@
     "error": {
       "error": "Error",
       "login": "Error: Already logged in",
-      "unrelated": "this channel's messages are restricted to verification requests only.",
       "nonexistent": "no command by that name found."
     },
     "success": {
       "online": "Online"
     }
   },
-  "commands": {
+  "commander": {
     "about": {
       "error": {
         "nonexistent": "no such user account found.",
@@ -89,6 +88,11 @@
       "success": {
         "granted": "access to the server has been granted."
       }
+    }
+  },
+  "logger": {
+    "error": {
+      "unrelated": "this channel's messages are restricted to verification requests only."
     }
   }
 }
