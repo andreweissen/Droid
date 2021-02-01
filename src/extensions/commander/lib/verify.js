@@ -22,7 +22,7 @@ const path = require("path");
 const got = require("got");
 
 /** @const {Command} Command - Command module, returns class */
-const Command = require("../util/command.js");
+const Command = require("../../../util/command.js");
 
 // @ts-check
 /**

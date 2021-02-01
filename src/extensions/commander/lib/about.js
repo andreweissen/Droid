@@ -21,7 +21,7 @@ const path = require("path");
 const got = require("got");
 
 /** @const {Command} Command - Command module, returns class */
-const Command = require("../util/command.js");
+const Command = require("../../../util/command.js");
 
 /**
  * @classdesc The <code>About</code> class is a subclass extending the default

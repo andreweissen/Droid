@@ -27,8 +27,7 @@ const path = require("path");
 const dotenv = require("dotenv");
 
 /** @const {Object} Resource - Resource module, returns class */
-const Resource = require(path.join(__dirname, "src", "resources", "util",
-  "resource.js"));
+const Resource = require(path.join(__dirname, "src", "util", "resource.js"));
 
 /** @const {Object} Client - Client module, returns class */
 const Client = require(path.join(__dirname, "src", "client.js"));
@@ -44,9 +43,6 @@ dotenv.config();
 
 /** @const {Client} client - New <code>Client</code> instance */
 const client = new Client(process.env.TOKEN, config, lang);
-
-// Populate Client instance's Map with all command subclasses
-client.loadCommandDir(path.join(__dirname, "src", "commands", "lib"));
 
 // Create and open websocket via Discord.Client#login
 client.login(process.env.TOKEN);

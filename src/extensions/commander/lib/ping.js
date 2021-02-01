@@ -12,7 +12,7 @@
 "use strict";
 
 /** @const {Command} Command - Command module, returns class */
-const Command = require("../util/command.js");
+const Command = require("../../../util/command.js");
 
 /**
  * @classdesc The <code>Ping</code> class is among the simpliest possible
