@@ -59,11 +59,11 @@ class Resource {
     }
 
     // Get default JSON file from /src/resources/lib/
-    this.defaults = require(`../lib/${file}`);
+    this.defaults = require(`../resources/${file}`);
 
     // Check if custom file exists in home directory
     try {
-      this.custom = require(`../../../${file}`);
+      this.custom = require(`../../${file}`);
     } catch (error) {
       return this.defaults;
     }

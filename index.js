@@ -1,6 +1,6 @@
 // @ts-check
 /**
- * @file The <code>index.js</code> file contains the the coordinating
+ * @file The main <code>index.js</code> file contains the the coordinating
  * application logic responsible for the initialization process required to
  * start the application. The code contained within first acquires all the
  * needed modules, loads all required resources via the [Resource]{@link

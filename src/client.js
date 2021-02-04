@@ -5,7 +5,7 @@
  * of the application, as it is directly responsible for coordinating responses
  * to user command invocations, logging replies in the server channels, and
  * establishing and maintaining a connection to Discord via websocket. It could
- * be viewed as a tacit extending subclass of <code>Discord.Client</code>.
+ * be viewed as a tacitly extending subclass of <code>Discord.Client</code>.
  * @module client
  * @author Andrew Eissen <andrew@andreweissen.com>
  * @requires fs
@@ -152,7 +152,7 @@ class Client {
     this.client.on("ready", this.onReady.bind(this));
     this.client.on("error", this.onError.bind(this));
 
-    // Set custom event listeners on new message
+    // Set custom event listeners for all extensions to be run on new message
     this.extensions.forEach(extension => {
       this.client.on("message", extension.onMessage.bind(extension));
     });
@@ -272,14 +272,42 @@ class Client {
     return console.error(this.lang.client.error.error, error);
   }
 
-  loadExtension (file, dir) {
+  /**
+   * @description The <code>loadExtensionDir</code>, as its name implies, is
+   * used to load the various extensions that extend the [Extension]{@link
+   * module:extension~Extension} class. It is written much like the
+   * [loadCommand]{@link module:commander~Commander#loadCommand} method from
+   * which it originated, in that it requires the <code>js</code> file
+   * constituting the extension application logic, partitions off the part of
+   * the <code>lang.json</code> <code>object</code> relating to the extension in
+   * question, instantiates a new extension class, checks for duplicates already
+   * present in [Client#extensions]{@link module:client~Client#extensions}, and
+   * finally adds the instance to the <code>Collection</code> and marks it as
+   * loaded.
+   * @function
+   * @param {string} [dir=path.join(__dirname, "extensions")] - The directory
+   * in which the extension directories are stored; by convention, this is
+   * <code>/src/extensions</code>
+   * @returns {void}
+   */
+  loadExtensionDir (dir = path.join(__dirname, "extensions")) {
+    fs.readdirSync(dir).forEach((file) => {
 
-  }
+      // Search each extension directory for index.js file
+      const Extension = require(path.join(dir, file));
 
-  loadExtensionDir (dir) {
-    fs.readdirSync(dir).filter((file) => {
-      return file.endsWith("index.js");
-    }).forEach((file) => this.loadExtension(file, dir));
+      // Extension-specific lang from lang.json
+      const lang = this.lang[file];
+
+      // Instantiate new instance of extension class and mark as unloaded
+      const extension = new Extension(file, false, this.config, lang);
+
+      // Add new extension to Collection if not present and mark as loaded
+      if (!this.extensions.has(extension) && !extension.loaded) {
+        this.extensions.set(extension.name, extension);
+        extension.loaded = true;
+      }
+    });
   }
 
   /**

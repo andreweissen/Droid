@@ -28,7 +28,6 @@ class Commander extends Extension {
     this.commands = new Discord.Collection();
 
     this.loadCommandDir(path.join(__dirname, "lib"));
-
   }
 
   /**
