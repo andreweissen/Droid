@@ -117,14 +117,14 @@ class Client {
     this.client = new Discord.Client();
 
     /**
-     * @description The <code>commands</code> property of the
+     * @description The <code>extensions</code> property of the
      * <code>Client</code> class is an instance of the
      * [Discord.Collection]{@link import('discord.js').Collection} class that is
-     * used to store initialized instances of command classes that extend the
-     * base [Command]{@link module:command~Command} class. A subclass that
+     * used to store initialized instances of extension classes that extend the
+     * base [Command]{@link module:extension~Extension} class. A subclass that
      * extends the base {@link Map} JavaScript structure, it is populated by
-     * [loadCommand]{@link module:client~Client#loadCommand}, usually at the
-     * start of the application's initialization, though post-initialization
+     * [loadCommand]{@link module:client~Client#loadExtensionDir}, usually at
+     * the start of the application's initialization, though post-initialization
      * additions of command classes is possible.
      * @member {Discord.Collection}
      * @see [Discord.Collection]{@link
@@ -301,6 +301,10 @@ class Client {
 
       // Instantiate new instance of extension class and mark as unloaded
       const extension = new Extension(file, false, this.config, lang);
+
+      if (this.config.utility.debug) {
+        console.log(`${file} -> ${this.extensions.has(file)}`);
+      }
 
       // Add new extension to Collection if not present and mark as loaded
       if (!this.extensions.has(extension) && !extension.loaded) {

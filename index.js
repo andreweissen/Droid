@@ -6,8 +6,8 @@
  * needed modules, loads all required resources via the [Resource]{@link
  * module:resource~Resource} class, then initializes a new [Client]{@link
  * module:client~Client} class instance and provides it the Discord bot
- * token/application ID and the requisite resources. The available commands are
- * then loaded via a [loadCommandDir]{@link module:client~Client#loadCommandDir}
+ * token/application ID and the requisite resources. The extensions are loaded
+ * via a [loadExtensionDir]{@link module:client~Client#loadExtensionDir}
  * invocation before the application is brought online via a [login]{@link
  * module:client~Client#login} call.
  * @author Andrew Eissen <andrew@andreweissen.com>

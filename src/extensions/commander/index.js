@@ -1,47 +1,84 @@
+/**
+ * @file The <code>commander</code> module serves to encapsulate the class of
+ * the same name. The <code>Commander</code> class, which extends the base
+ * [Extension]{@link module:extension~Extension} superclass, serves to
+ * coordinate the loading and initialization of the bot application's command
+ * functionality used to interact with the application in the server's channels.
+ * @module commander
+ * @author Andrew Eissen <andrew@andreweissen.com>
+ */
 "use strict";
 
 /** @const {Object} path - Path module */
 const path = require("path");
 
 /** @const {Object} Extension - Extension module, returns class */
-const Extension = require("../../../src/util/extension.js");
+const Extension = require("../../util/extension.js");
 
+/**
+ * @classdesc The <code>Commander</code> class is a subclass implementation of
+ * the base [Extension]{@link module:extension~Extension} superclass that serves
+ * to coordinate the loading and initialization of the <code>Droid</code> bot
+ * application's command functionality. This plugin is used by the server's
+ * members to interact with the bot in various text channels, with associated
+ * functionality ranging from the handling of verification requests to the
+ * processing of users' requests for information pertaining to a given user on
+ * the wiki.
+ * <br />
+ * <br />
+ * As with all subclasses extending <code>Extension</code>, the
+ * <code>Commander</code> class includes an implementation of the required
+ * [Extension#onMessage]{@link module:extension~Extension#onMessage} method.
+ * This method serves as the event listener callback function that is attached
+ * to "message" events by the [Client]{@link module:client~Client} and invoked
+ * when a new message is added to a server channel. This particular
+ * implementation of the method checks if the new message includes a command
+ * invocation, and handles the request accordingly if it does.
+ * @class
+ */
 class Commander extends Extension {
 
+  /** @inheritdoc */
   constructor (name, loaded, config, lang) {
     super(name, loaded, config, lang);
 
     /**
      * @description The <code>commands</code> property of the
-     * <code>Client</code> class is an instance of the
+     * <code>Commander</code> class is an instance of the
      * [Discord.Collection]{@link import('discord.js').Collection} class that is
      * used to store initialized instances of command classes that extend the
      * base [Command]{@link module:command~Command} class. A subclass that
      * extends the base {@link Map} JavaScript structure, it is populated by
-     * [loadCommand]{@link module:client~Client#loadCommand}, usually at the
-     * start of the application's initialization, though post-initialization
-     * additions of command classes is possible.
+     * [loadCommandDir]{@link module:commander~Commander#loadCommandDir},
+     * usually at the start of the extension's initialization, though
+     * post-initialization additions of command classes is possible.
      * @member {Discord.Collection}
      * @see [Discord.Collection]{@link
       * https://discord.js.org/#/docs/collection/master/class/Collection}
       */
     this.commands = new Discord.Collection();
 
+    // Load all commands and add new instances to commands Collection
     this.loadCommandDir(path.join(__dirname, "lib"));
   }
 
   /**
    * @description As its name implies, <code>loadCommand</code> is used to
-   * create a new class instance of the command class specified in the
+   * create a new class instance of the given command class specified in the
    * <code>file</code> parameter and add that newly created instance to the
-   * <code>Client</code> instance's <code>Discord.Collection</code> map for
-   * subsequent retrieval and usage.
+   * <code>Commander</code> instance's <code>Discord.Collection</code> map
+   * [Commander#commands]{@link module:commander~Commander#commands} for
+   * subsequent retrieval and usage. It is primarily invoked within the context
+   * of [loadCommandDir]{@link module:commander~Commander#loadCommandDir} during
+   * the extension's initialization, though it may be invoked independently by
+   * [onMessage]{@link module:commander~Commander#onMessage} if the command has
+   * somehow not been loaded previously.
    * @function
    * @param {string} file - The name of the requested command to load (should
    * come suffixed with "<code>.js</code>" in all cases)
    * @param {string} [dir=path.join(__dirname, "lib")] - Directory
    * name in which the parameter command file may be found (default is
-   * <code>./commands/lib</code>)
+   * <code>./src/extensions/commander/lib</code>)
    * @returns {void}
    */
   loadCommand (file, dir = path.join(__dirname, "lib")) {
@@ -53,7 +90,7 @@ class Commander extends Extension {
     const name = file.split(".")[0];
 
     // Command subclass-specific bot messages from this.lang.commands
-    const lang = this.lang.commands[name];
+    const lang = this.lang[name];
 
     // Instantiate new instance of command class and mark as unloaded
     const command = new Command(name, false, this.config, lang);
@@ -77,12 +114,12 @@ class Commander extends Extension {
    * on those those for the purposes of populating the <code>Client</code> class
    * instance's <code>Discord.Collection</code> map.
    * @function
-   * @param {string} dir - Directory <code>Array</code> of <code>string</code>
-   * file names (<code>./src/commands/lib</code> when invoked by
-   * {@link index.js})
+   * @param {string} [dir=path.join(__dirname, "lib")] - Directory
+   * name in which the parameter command file may be found (default is
+   * <code>./src/extensions/commander/lib</code>)
    * @returns {void}
    */
-  loadCommandDir (dir) {
+  loadCommandDir (dir = path.join(__dirname, "lib")) {
     fs.readdirSync(dir).filter((file) => {
       return file.endsWith(".js");
     }).forEach((file) => this.loadCommand(file, dir));

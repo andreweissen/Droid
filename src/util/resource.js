@@ -3,8 +3,8 @@
  * same name. The <code>Resource</code> class is used to serve the most updated
  * version of the requested resource, checking for any custom user-defined
  * resources in the home directory and reconciling their values with those of
- * the default resource stored in <code>./src/resources/lib</code> before
- * returning the assembled result as an <code>Object</code>.
+ * the default resource stored in <code>./src/resources</code> before returning
+ * the assembled result as an <code>Object</code>.
  * @module resource
  * @author Andrew Eissen <andrew@andreweissen.com>
  */
@@ -43,7 +43,7 @@ class Resource {
   /**
    * @description The <code>Resource</code> constructor handles the sanitation
    * of the input parameter <code>file</code> to ensure it is a properly
-   * suffixed JSON file, checks whether the required custom resource file stored
+   * suffixed JSON file, checks whether the optional custom resource file stored
    * in the home directory by the implementing user exists, and chooses whether
    * to invoke <code>Resource#extend</code> and reconcile user input with
    * default values or simply return the standard default resource file on its
@@ -58,7 +58,7 @@ class Resource {
       file += ".json";
     }
 
-    // Get default JSON file from /src/resources/lib/
+    // Get default JSON file from ./src/resources
     this.defaults = require(`../resources/${file}`);
 
     // Check if custom file exists in home directory

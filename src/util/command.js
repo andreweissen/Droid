@@ -1,7 +1,7 @@
 // @ts-check
 /**
- * @file The <code>command</code> module (there's an Apollo space joke in there
- * somewhere) serves to encapsulate the class of the same name. The
+ * @file The <code>command</code> module (there's an Apollo space program joke
+ * in there somewhere) serves to encapsulate the class of the same name. The
  * <code>Command</code> class serves as a largely content-free superclass that
  * is extended by subsequent subclasses representing specific commands users
  * may invoke on the server.
@@ -30,26 +30,26 @@ class Command {
    * @description The <code>Command</code> constructor is used simply to store
    * the <code>string</code>, <code>boolean</code>, and <code>Object</code>
    * parameter properties passed during the class's initial initialization
-   * (via [loadCommand]{@link module:client~Client#loadCommand}) in private
-   * fields via dedicated setters that ensure parameters are of the correct data
-   * type.
+   * (via [loadCommand]{@link module:commander~Commander#loadCommand}) in
+   * private fields via dedicated setters that ensure parameters are of the
+   * correct data type.
    * @constructor
    * @param {string} name - Name of the command (verify, about, etc.), not the
    * specific configurable text the user must use to invoke the command.
    * @param {boolean} loaded - Flag denoting the command's loaded or unloaded
    * status, depending on whether a class instance already exists in the
-   * <code>Client</code> instance's <code>Discord.Collection</code> map, namely
-   * [collection]{@link module:client~Client#collection}.
-   * @param {Object} config - A reference to the instantiating
-   * <code>Client</code> class instance's own [Client#config]{@link
-   * module:client~Client#config} <code>Object</code>, containing all the custom
-   * configuration options available for tweaking prior to installation.
-   * @param {Object} lang - A reference to a subclass-specific nested
-   * <code>Object</code> constituting a property of the instantiating
-   * <code>Client</code> class instance's own
-   * [lang]{@link module:client~Client#lang} <code>Object</code>, containing
-   * messages specific to the subclass being instantiated rather than a
-   * reference to the whole <code>Client#lang</code> <code>Object</code>.
+   * <code>Commander</code> instance's <code>Discord.Collection</code> map,
+   * namely [Commander#commands]{@link module:commander~Commander#commands}.
+   * @param {Object} config - Ultimately, a reference to the original
+   * [Client#config]{@link module:client~Client#config} <code>Object</code> that
+   * is likewise passed to each extension and command on initialization. This
+   * parameter contains all the custom configuration options available for
+   * tweaking prior to installation.
+   * @param {Object} lang - A reference to a command-specific property of the
+   * <code>Commander</code> plugin's [lang]{@link
+   * module:commander~Commander#lang} property, which is itself a property of
+   * the <code>Client</code> class's own [lang]{@link module:client~Client#lang}
+   * <code>Object</code> specific to the <code>Commander</code> extension.
    */
   constructor (name, loaded, config, lang) {
 
@@ -65,19 +65,20 @@ class Command {
     /**
      * @description The <code>loaded</code> <code>boolean</code> property is a
      * private internal field denoting whether a class instance of its type
-     * exists in the <code>Client</code> instance's [Discord.Collection]{@link
+     * exists in the <code>Commander</code>'s [Discord.Collection]{@link
      * https://discord.js.org/#/docs/collection/master/class/Collection}
-     * property, [commands]{@link module:client~Client#commands}.
+     * property, [commands]{@link module:commander~Commander#commands}.
      * @member {boolean}
      */
     this.loaded = loaded;
 
     /**
-     * @description The <code>config</code> <code>Object</code> property is a
-     * reference to the instantiating <code>Client</code> class instance's own
-     * [config]{@link module:client~Client#config} <code>Object</code>, the
-     * container for all the custom configuration options available for tweaking
-     * prior to installation of the application.
+     * @description The <code>config</code> <code>Object</code> property is
+     * ultimately a reference to the original [Client#config]{@link
+     * module:client~Client#config} <code>Object</code> that is likewise passed
+     * to each extension and command on their initializations. This parameter is
+     * the container for all the custom configuration options available for
+     * tweaking prior to the installation of the application.
      * @member {Object}
      * @see [Client#config]{@link module:client~Client#config}
      */
@@ -85,13 +86,13 @@ class Command {
 
     /**
      * @description The <code>lang</code> <code>Object</code> property is a
-     * reference to a subclass-specific nested <code>Object</code> constituting
-     * a property of the instantiating <code>Client</code> class instance's own
-     * [lang]{@link module:client~Client#lang} <code>Object</code>. This
-     * <code>Object</code>'s contents include messages specific to the subclass
-     * being instantiated rather than a reference to the whole
-     * <code>Client#lang</code> <code>Object</code>.
+     * reference to a command-specific property of the <code>Commander</code>
+     * plugin's [lang]{@link module:commander~Commander#lang} property, which is
+     * itself a property of the <code>Client</code> class's own [lang]{@link
+     * module:client~Client#lang} <code>Object</code> specific to the
+     * <code>Commander</code> extension.
      * @member {Object}
+     * @see [Commander#lang]{@link module:commander~Commander#lang}
      * @see [Client#lang]{@link module:client~Client#lang}
      */
     this.lang = lang;
@@ -117,15 +118,14 @@ class Command {
 
   /**
    * @description <code>set loaded</code> serves as the setter method for the
-   * <code>loaded</code> parameter property representing whether the greater
-   * application has already instantiated a member of the class and added it to
-   * the <code>Client</code> class instance's [Discord.Collection]{@link
+   * <code>loaded</code> parameter property representing whether the commands
+   * extension has already instantiated a member of the class and added it to
+   * the <code>Commander</code>'s own [Discord.Collection]{@link
    * https://discord.js.org/#/docs/collection/master/class/Collection} property,
-   * [commands]{@link module:client~Client#commands}.
-   * It checks to ensure that the parameter <code>loaded</code> is of the
-   * primitive <code>boolean</code> type, applying a default value of
-   * <code>false</code> to the internal field if the parameter is not of the
-   * proper type.
+   * [commands]{@link module:commander~Commander#commands}. It checks to ensure
+   * that the parameter <code>loaded</code> is of the primitive
+   * <code>boolean</code> type, applying a default value of <code>false</code>
+   * to the internal field if the parameter is not of the proper type.
    * @function
    * @param {boolean} loaded - The parameter to be assigned as the internal
    * <code>_loaded</code>. It should be a primitive <code>boolean</code>.
@@ -137,17 +137,17 @@ class Command {
 
   /**
    * @description <code>set config</code> serves as the setter method for the
-   * <code>config</code> parameter property representing the a reference to the
-   * instantiating <code>Client</code> class instance's own
-   * [config]{@link module:client~Client#config} <code>Object</code>, the
-   * container for all the custom configuration options available for tweaking
-   * prior to installation of the application. It checks to ensure that the
-   * parameter <code>config</code> is of the <code>Object</code> type, applying
-   * a default empty <code>Object</code> to the internal field if the parameter
-   * is not of the proper type.
+   * <code>config</code> parameter property representing a reference to the
+   * original <code>Client</code> class instance's own [config]{@link
+   * module:client~Client#config} <code>Object</code>, the container for all the
+   * custom configuration options available for tweaking prior to the
+   * installation of the application. It checks to ensure that the parameter
+   * <code>config</code> is of the <code>Object</code> type, applying a default
+   * empty <code>Object</code> to the internal field if the parameter is not of
+   * the proper type.
    * @function
    * @param {Object} config - The parameter to be assigned as the internal
-   * <code>_config</code>. It should be a primitive <code>Object</code>.
+   * <code>_config</code>. It should be an <code>Object</code>.
    * @returns {void}
    */
   set config (config) {
@@ -158,16 +158,18 @@ class Command {
 
   /**
    * @description <code>set lang</code> serves as the setter method for the
-   * <code>lang</code> parameter property representing the a reference to the
-   * instantiating <code>Client</code> class instance's own
-   * [lang]{@link module:client~Client#lang} <code>Object</code> containing
-   * messages specific to the subclass being instantiated It checks to ensure
-   * that the parameter <code>config</code> is of the <code>Object</code> type,
-   * applying a default empty <code>Object</code> to the internal field if the
-   * parameter is not of the proper type.
+   * <code>lang</code> parameter property representing a reference to the
+   * command-specific property of the <code>Commander</code> plugin's
+   * [lang]{@link module:commander~Commander#lang} property, which is itself a
+   * property of the <code>Client</code> class's own [lang]{@link
+   * module:client~Client#lang} <code>Object</code> specific to the
+   * <code>Commander</code> extension. It checks to ensure that the parameter
+   * <code>config</code> is of the <code>Object</code> type, applying a default
+   * empty <code>Object</code> to the internal field if the parameter is not of
+   * the proper type.
    * @function
    * @param {Object} lang - The parameter to be assigned as the internal
-   * <code>_lang</code>. It should be a primitive <code>Object</code>.
+   * <code>_lang</code>. It should be an <code>Object</code>.
    * @returns {void}
    */
   set lang (lang) {
