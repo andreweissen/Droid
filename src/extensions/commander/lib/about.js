@@ -37,12 +37,12 @@ const Command = require("../../../util/command.js");
  * means of acquiring identifying information about a given Wikia/Fandom account
  * without having to manually poke around on the user's userpage. The updated
  * version's design ethos and general layout was based on [Userinfo]{@link
- * https://en.wikipedia.org/wiwki/User:PleaseStand/userinfo.js}, a JavaScript
+ * https://en.wikipedia.org/wiki/User:PleaseStand/userinfo.js}, a JavaScript
  * userscript published on the English Wikipedia and developed by Wikipedia
  * user [PleaseStand]{@link https://en.wikipedia.org/wiki/User:PleaseStand}.
  * @class
  * @see [Userinfo]{@link
- * https://en.wikipedia.org/wiwki/User:PleaseStand/userinfo.js}
+ * https://en.wikipedia.org/wiki/User:PleaseStand/userinfo.js}
  */
 class About extends Command {
 
@@ -139,7 +139,7 @@ class About extends Command {
    * userscript available for use on the English Wikipedia.
    * @function
    * @see [Userinfo]{@link
-   * https://en.wikipedia.org/wiwki/User:PleaseStand/userinfo.js}
+   * https://en.wikipedia.org/wiki/User:PleaseStand/userinfo.js}
    * @param {Date|*} target - A <code>Date</code> object instance related to a
    * timestamp <code>string</code> passed in MediaWiki API query data from an
    * [About#getUserData]{@link module:about~About#getUserData} invocatin.
@@ -233,7 +233,8 @@ class About extends Command {
    * @function
    * @override
    * @see [Command#execute]{@link module:command~Command#execute}
-   * @param {Object} message - A new <code>Discord.Message</code> class instance
+   * @param {Object} message - A new [Discord.Message]{@link
+   * http://discord.js.org/#/docs/main/master/class/Message} class instance
    * containing information pertaining to the most recent server message, its
    * author, and the channel in which it was posted, among other data.
    * @param {Array<string>} args - An array of <code>string</code>s constituting
@@ -242,11 +243,11 @@ class About extends Command {
    * username as separated by spaces; for example, the username "Jabba the Hutt"
    * would be passed as <code>["Jabba", "the", "Hutt"]</code> as the
    * <code>args</code> argument.
-   * @param {Function} logReply - A reference to the [Client#addReply]{@link
-   * module:client~Client#addReply} method, bound to the <code>Client</code>
-   * class instance. This ensures command subclasses are not directly
-   * interfacing with the server channels, a responsibility under the exclusive
-   * purview of the Client class and its respective methods alone.
+   * @param {Function} logReply - A reference to the [Extension#addReply]{@link
+   * module:extension~Extension#addReply} method, bound to the
+   * <code>Commander</code> class instance. This ensures command subclasses are
+   * not directly interfacing with the server channels, a responsibility under
+   * the exclusive purview of classes that extend <code>Extension</code> alone.
    * @returns {Promise<void>}
    */
   // @ts-ignore

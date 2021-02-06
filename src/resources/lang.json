@@ -2,91 +2,96 @@
   "client": {
     "error": {
       "error": "Error",
-      "login": "Error: Already logged in",
-      "nonexistent": "no command by that name found."
+      "login": "Error: Already logged in"
     },
     "success": {
       "online": "Online"
     }
   },
   "commander": {
-    "about": {
-      "error": {
-        "nonexistent": "no such user account found.",
-        "server": "a server-side error was encountered. Please try again."
-      },
-      "success": {
-        "units": {
-          "second": {
-            "singular": "second",
-            "plural": "seconds"
+    "error": {
+      "loading": "Loading error",
+      "nonexistent": "no command by that name found."
+    },
+    "success": {
+      "about": {
+        "error": {
+          "nonexistent": "no such user account found.",
+          "server": "a server-side error was encountered. Please try again."
+        },
+        "success": {
+          "units": {
+            "second": {
+              "singular": "second",
+              "plural": "seconds"
+            },
+            "minute": {
+              "singular": "minute",
+              "plural": "minutes"
+            },
+            "hour": {
+              "singular": "hour",
+              "plural": "hours"
+            },
+            "day": {
+              "singular": "day",
+              "plural": "days"
+            },
+            "week": {
+              "singular": "week",
+              "plural": "weeks"
+            },
+            "month": {
+              "singular": "month",
+              "plural": "months"
+            },
+            "year": {
+              "singular": "year",
+              "plural": "years"
+            },
+            "edit": {
+              "singular": "edit",
+              "plural": "edits"
+            }
           },
-          "minute": {
-            "singular": "minute",
-            "plural": "minutes"
+          "fragments": {
+            "autoconfirmed": "$1 is an autoconfirmed user",
+            "blocked": "$1 is a blocked user",
+            "default": "$1 is a registered user",
+            "unknownGender": "unknown gender",
+            "unknownName": "Queried subject",
+            "registration": "$1 old",
+            "edits": "with $1",
+            "lastEdit": "Last edited $1 ago"
           },
-          "hour": {
-            "singular": "hour",
-            "plural": "hours"
-          },
-          "day": {
-            "singular": "day",
-            "plural": "days"
-          },
-          "week": {
-            "singular": "week",
-            "plural": "weeks"
-          },
-          "month": {
-            "singular": "month",
-            "plural": "months"
-          },
-          "year": {
-            "singular": "year",
-            "plural": "years"
-          },
-          "edit": {
-            "singular": "edit",
-            "plural": "edits"
+          "delimiters": {
+            "thousands": ",",
+            "conjunction": "and",
+            "separator": ",",
+            "terminator": "."
           }
-        },
-        "fragments": {
-          "autoconfirmed": "$1 is an autoconfirmed user",
-          "blocked": "$1 is a blocked user",
-          "default": "$1 is a registered user",
-          "unknownGender": "unknown gender",
-          "unknownName": "Queried subject",
-          "registration": "$1 old",
-          "edits": "with $1",
-          "lastEdit": "Last edited $1 ago"
-        },
-        "delimiters": {
-          "thousands": ",",
-          "conjunction": "and",
-          "separator": ",",
-          "terminator": "."
         }
-      }
-    },
-    "ping": {
-      "success": {
-        "default": "Pong!",
-        "custom": "gnip!"
-      }
-    },
-    "verify": {
-      "error": {
-        "misplaced": "verification requests are restricted to the verify channel.",
-        "username": "please specify a username.",
-        "redundant": "your account already has the requisite role.",
-        "nonexistent": "no such user account found.",
-        "edits": "you have an insufficient edit count on the wiki.",
-        "missing": "your Discord username is missing from your wiki masthead.",
-        "mismatched": "your current Discord username and wiki masthead Discord name do not match.",
-        "server": "a server-side error was encountered. Please try again."
       },
-      "success": {
-        "granted": "access to the server has been granted."
+      "ping": {
+        "success": {
+          "default": "Pong!",
+          "custom": "gnip!"
+        }
+      },
+      "verify": {
+        "error": {
+          "misplaced": "verification requests are restricted to the verify channel.",
+          "username": "please specify a username.",
+          "redundant": "your account already has the requisite role.",
+          "nonexistent": "no such user account found.",
+          "edits": "you have an insufficient edit count on the wiki.",
+          "missing": "your Discord username is missing from your wiki masthead.",
+          "mismatched": "your current Discord username and wiki masthead Discord name do not match.",
+          "server": "a server-side error was encountered. Please try again."
+        },
+        "success": {
+          "granted": "access to the server has been granted."
+        }
       }
     }
   },

@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * @file The <code>commander</code> module serves to encapsulate the class of
  * the same name. The <code>Commander</code> class, which extends the base
@@ -6,6 +7,8 @@
  * functionality used to interact with the application in the server's channels.
  * @module commander
  * @author Andrew Eissen <andrew@andreweissen.com>
+ * @requires path
+ * @requires extension
  */
 "use strict";
 
@@ -35,6 +38,7 @@ const Extension = require("../../util/extension.js");
  * implementation of the method checks if the new message includes a command
  * invocation, and handles the request accordingly if it does.
  * @class
+ * @augments Extension
  */
 class Commander extends Extension {
 
@@ -54,8 +58,8 @@ class Commander extends Extension {
      * post-initialization additions of command classes is possible.
      * @member {Discord.Collection}
      * @see [Discord.Collection]{@link
-      * https://discord.js.org/#/docs/collection/master/class/Collection}
-      */
+     * https://discord.js.org/#/docs/collection/master/class/Collection}
+     */
     this.commands = new Discord.Collection();
 
     // Load all commands and add new instances to commands Collection
@@ -71,7 +75,7 @@ class Commander extends Extension {
    * subsequent retrieval and usage. It is primarily invoked within the context
    * of [loadCommandDir]{@link module:commander~Commander#loadCommandDir} during
    * the extension's initialization, though it may be invoked independently by
-   * [onMessage]{@link module:commander~Commander#onMessage} if the command has
+   * [onMessage]{@link module:extension~Extension#onMessage} if the command has
    * somehow not been loaded previously.
    * @function
    * @param {string} file - The name of the requested command to load (should
@@ -90,7 +94,7 @@ class Commander extends Extension {
     const name = file.split(".")[0];
 
     // Command subclass-specific bot messages from this.lang.commands
-    const lang = this.lang[name];
+    const lang = this.lang.success[name];
 
     // Instantiate new instance of command class and mark as unloaded
     const command = new Command(name, false, this.config, lang);
@@ -110,9 +114,12 @@ class Commander extends Extension {
    * @description The <code>loadCommandDir</code> method is used to fetch the
    * <code>string</code> names representing files stored in the parameter
    * directory, filter out those that are not properly suffixed "js" JavaScript
-   * modules, and invoke [loadCommand]{@link module:client~Client#loadCommand}
-   * on those those for the purposes of populating the <code>Client</code> class
-   * instance's <code>Discord.Collection</code> map.
+   * modules, and invoke [Commander#loadCommand]{@link
+   * module:commander~Commander#loadCommand} on those for the purposes of
+   * populating the <code>Commander</code> extension class instance's
+   * <code>Discord.Collection</code> map [Commander#commands]{@link
+   * module:commander~Commander#commands} with commands. This function is
+   * invoked by the class's constructor.
    * @function
    * @param {string} [dir=path.join(__dirname, "lib")] - Directory
    * name in which the parameter command file may be found (default is
@@ -126,55 +133,56 @@ class Commander extends Extension {
   }
 
   /**
-   * @description Arguably the most important method of the <code>Client</code>
-   * class, <code>onMessage</code> serves as the primary event listener callback
-   * handling "message" events. As such, it is responsible for checking to see
+   * @description Arguably the most important method of the class, the
+   * <code>Commander</code> extension's implementation of the required
+   * [Extension#onMessage]{@link module:extension~Extension#onMessage} method
+   * serves as the primary event listener callback function tasked with handling
+   * Discord "message" events. As such, it is responsible for checking to see
    * if the bot application should take an interest in the most recent message,
    * namely the [Discord.Message]{@link
-    * http://discord.js.org/#/docs/main/master/class/Message} instance that is
-    * passed as the method's sole parameter. If the message is determined to
-    * constitute a command invocation, the method will check to see if a command
-    * matching the invoked name exists in [Client#commands]{@link
-    * module:client~Client#commands}, the [Discord.Collection]{@link
-    * https://discord.js.org/#/docs/collection/master/class/Collection}
-    * containing all previously instantiated command subclasses corresponding to
-    * available command functionality. If so, the method invokes the relevant
-    * implementation of [Command#execute]{@link module:command~Command#execute}
-    * to pass the execution progression off to the relevant subclass.
-    * <br />
-    * <br />
-    * On a more detailed level, the method begins by checking if the user has
-    * attempted to post a non-verification message in the verify channel, logging
-    * the message in the moderator logs channel if so before deleting the message
-    * and adding a timed reply in response. Otherwise, if the message was a
-    * normal user post in another channel rather than a command invocation, the
-    * method ignores it and returns to await the next message.
-    * <br />
-    * <br />
-    * However, if the message does constitute a wellformed command invocation,
-    * the method will validate the input and attempt to locate an available
-    * command matching the desired command. If one is found, the method will then
-    * query <code>Client#commands</code> to see if an instance of the appropriate
-    * command subclass extending [Command]{@link module:command~Command} exists,
-    * invoking [Client#loadCommand]{@link module:client~Client#loadCommand} if
-    * not. Execution is then handed off to the <code>Command#execute</code>
-    * method to address the required command action.
-    * @function
-    * @param {Object} message - A new <code>Discord.Message</code> class instance
-    * containing information pertaining to the most recent server message, its
-    * author, and the channel in which it was posted, among other data.
-    * @returns {void}
-    */
+   * http://discord.js.org/#/docs/main/master/class/Message} instance that is
+   * passed as the method's sole parameter. If the message is determined to
+   * constitute a command invocation, the method will check to see if a command
+   * matching the invoked name exists in [Commander#commands]{@link
+   * module:commander~Commander#commands}, the [Discord.Collection]{@link
+   * https://discord.js.org/#/docs/collection/master/class/Collection}
+   * containing all previously instantiated command subclasses corresponding to
+   * available command functionality. If a match is found, the method invokes
+   * the relevant implementation of [Command#execute]{@link
+   * module:command~Command#execute} to pass the execution progression off to
+   * the relevant subclass.
+   * <br />
+   * <br />
+   * On a more detailed level, the method begins by checking if the message was
+   * a bot post or if the message was not prefixed with the command prefix used
+   * to denote a command invocation. In such cases, the method ignores the post.
+   * However, if the message does constitute a wellformed command invocation,
+   * the method will validate the input and attempt to locate an available
+   * command matching the desired command. If one is found, the method will then
+   * query <code>Commander#commands</code> to see if an instance of the
+   * appropriate command subclass extending [Command]{@link
+   * module:command~Command} exists, invoking [Commander#loadCommand]{@link
+   * module:commander~Commander#loadCommand} if not. Execution is then handed
+   * off to the <code>Command#execute</code> method to address the required
+   * command action.
+   * @function
+   * @override
+   * @see [Extension#onMessage]{@link module:extension~Extension#onMessage}
+   * @param {Object} message - A new [Discord.Message]{@link
+   * http://discord.js.org/#/docs/main/master/class/Message} class instance
+   * containing information pertaining to the most recent server message, its
+   * author, and the channel in which it was posted, among other data.
+   * @returns {void}
+   */
   onMessage (message) {
     const commands = this.config.commands;
-    const lang = this.lang.client;
 
     /*
      * Take no further interest if the poster is a bot (avoid instant
      * self-deletion of above timed replies) or if the message doesn't start
      * with the command prefix.
      */
-    if (!message.content.startsWith(commands.prefix) || message.author.bot) {
+    if (message.author.bot || !message.content.startsWith(commands.prefix)) {
       return;
     }
 
@@ -195,11 +203,11 @@ class Commander extends Extension {
 
     // Handle nonexistent command invocations
     if (!command) {
-      return this.addReply(message, lang.error.nonexistent);
+      return this.addReply(message, this.lang.error.nonexistent);
     }
 
     /*
-     * Check if the <code>Client</code> instance's
+     * Check if the <code>Commander</code> extension instance's
      * <code>Discord.Collection</code> (extends <code>Map</code>) already has
      * the queried command, implying that <code>loadCommand</code> has already
      * been invoked and a new instance of this command's class created and
@@ -209,7 +217,7 @@ class Commander extends Extension {
       try {
         this.loadCommand(`${command}.js`);
       } catch (error) {
-        return console.error(lang.error.error, error);
+        return console.error(this.lang.error.loading, error);
       }
     }
 

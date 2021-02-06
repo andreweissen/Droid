@@ -235,7 +235,8 @@ class Command {
    * server. It coordinates the application logic of the specific command, and
    * may invoke other subclass-specific helper methods as required.
    * @function
-   * @param {Object} message - A new <code>Discord.Message</code> class instance
+   * @param {Object} message - A new [Discord.Message]{@link
+   * http://discord.js.org/#/docs/main/master/class/Message} class instance
    * containing information pertaining to the most recent server message, its
    * author, and the channel in which it was posted, among other data.
    * @param {Array<string>} args - An array of <code>string</code>s constituting
@@ -244,11 +245,13 @@ class Command {
    * up the username as separated by spaces; for example, the username "Jabba
    * the Hutt" would be passed as <code>["Jabba", "the", "Hutt"]</code> as the
    * <code>args</code> argument.
-   * @param {Function} logReply - A reference to the [Client#addReply]{@link
-   * module:client~Client#addReply} method, bound to the <code>Client</code>
+   * @param {Function} logReply - A reference to the <code>Commander</code>
+   * extension's own copy of [Extension#addReply]{@link
+   * module:extension~Extension#addReply} method, bound to that extension's
    * class instance. This ensures command subclasses are not directly
    * interfacing with the server channels, a responsibility under the exclusive
-   * purview of the Client class and its respective methods alone.
+   * purview of the <code>Commander</code> extension class and its respective
+   * methods alone.
    * @returns {void}
    */
   execute (message, args, logReply) {}
