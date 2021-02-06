@@ -28,7 +28,7 @@
   },
   "utility": {
     "subdomain": "swfanon",
-    "debug": false,
+    "debug": true,
     "interval": 5000
   }
 }

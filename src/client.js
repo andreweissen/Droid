@@ -25,21 +25,35 @@ const Discord = require("discord.js");
 
 // @ts-check
 /**
- * @classdesc The <code>Client</code> class serves as the beating heart of the
- * application of the same name. It is responsible for coordinating the behavior
- * of the bot, loading commands, evaluating each new message posted to server
- * channels, and replying to user queries as required.
+ * @classdesc Though much of its original functionality has since been delegated
+ * to more specialized classes by means of the recent rewrite, the
+ * <code>Client</code> class still tacitly serves as the beating heart of the
+ * application. It is responsible for initializing and coordinating the behavior
+ * of the bot, loading extensions, and logging in via websocket. Prior to its
+ * rewrite, it also handled the responsibilities of loading commands, monitoring
+ * certain server channels, and responding to user queries as required.
  * <br />
  * <br />
- * As the central class of the bot application, <code>Client</code> is the only
- * class that may interact with other users in the server channels through the
- * posting of messages. In previous versions of the application, various command
- * subclasses extending [Command]{@link module:command~Command} would likewise
- * post messages in the server. However, this spaghetti approach was eventually
- * refactored and replaced with the passing of each subclass a reference to
- * [addReply]{@link module:client~Client#addReply} bound to the
- * <code>Client</code> class instance to ensure all message logging remained
+ * As the central class of the bot application, <code>Client</code> was
+ * previously the only class empowered to interact with other users in the
+ * server channels through the posting of messages. In previous versions of the
+ * application, various command subclasses extending [Command]{@link
+ * module:command~Command} could likewise post messages in the server. However,
+ * this spaghetti approach was eventually refactored and replaced with the
+ * passing of each subclass a reference to a dedicated response methdo bound to
+ * the <code>Client</code> class instance to ensure all message logging remained
  * during the exclusive purview of the central <code>Client</code> class.
+ * <br />
+ * <br />
+ * However, as of the most recent rewrite (February 2021), the class's reply
+ * method was instead moved to [Extension]{@link module:extension~Extension} and
+ * named [addReply]{@link module:extension~Extension#addReply}. This method is
+ * now available to all implementing subclasses of <code>Extension</code>,
+ * leaving the posting of messages as the responsibility of extensions
+ * themselves. The previous approach of passing a bound version of the reply
+ * method to <code>Command</code> subclasses was retained, as [Commander]{@link
+ * module:commander~Commander} now passes its <code>addReply</code> method to
+ * its commands.
  * @class
  */
 class Client {
@@ -49,8 +63,8 @@ class Client {
    * index.js, is responsible for creating new <code>Discord.Client</code> and
    * <code>Discord.Collection</code> instances, defining resource objects that
    * contain various operation properties and raw message text, setting various
-   * status <code>boolean</code> flags, and establishing event listeners and
-   * their associated callbacks.
+   * status <code>boolean</code> flags, loading extensions, and establishing
+   * event listeners and their associated callbacks.
    * @param {string} token - A process environment variable representing the
    * Discord application's client ID/bot token provided by Discord when first
    * converting an application to a bot.
@@ -91,12 +105,12 @@ class Client {
     /**
      * @description The <code>lang</code> <code>Object</code> contains all the
      * raw text content of messages the <code>Client</code> class instance will
-     * generate in the server channels by means of [Client#addReply]{@link
-     * module:client~Client#addReply}. Unlike the contents of the
+     * generate in the server channels by means of [Extension#addReply]{@link
+     * module:extension~Extension#addReply}. Like the contents of the
      * [Client#config]{@link module:client~Client#config} <code>Object</code>,
-     * the <code>lang</code> property should not be configured by the installing
-     * user or have its properties adjusted in any way apart from the submission
-     * of modifications made to the text values of the JSON keys.
+     * the <code>lang</code> property may be configured by the installing
+     * user via the inclusion of an identically named file in the root
+     * directory.
      * @member {Object}
      */
     this.lang = lang;
@@ -155,6 +169,10 @@ class Client {
     // Set custom event listeners for all extensions to be run on new message
     this.extensions.forEach(extension => {
       this.client.on("message", extension.onMessage.bind(extension));
+
+      if (this.config.utility.debug) {
+        console.log(`${extension.name} -> ${this.lang.client.success.online}`);
+      }
     });
   }
 
@@ -187,7 +205,7 @@ class Client {
    * the internal field if the parameter is not of the proper type.
    * @function
    * @param {Object} config - The parameter to be assigned as the internal
-   * <code>_config</code>. It should be a primitive <code>Object</code>.
+   * <code>_config</code>. It should be an <code>Object</code>.
    * @returns {void}
    */
   set config (config) {
@@ -205,7 +223,7 @@ class Client {
    * the internal field if the parameter is not of the proper type.
    * @function
    * @param {Object} lang - The parameter to be assigned as the internal
-   * <code>_lang</code>. It should be a primitive <code>Object</code>.
+   * <code>_lang</code>. It should be an <code>Object</code>.
    * @returns {void}
    */
   set lang (lang) {
@@ -285,9 +303,10 @@ class Client {
    * finally adds the instance to the <code>Collection</code> and marks it as
    * loaded.
    * @function
+   * @see [Commander#loadCommand]{@link module:commander~Commander#loadCommand}
    * @param {string} [dir=path.join(__dirname, "extensions")] - The directory
    * in which the extension directories are stored; by convention, this is
-   * <code>/src/extensions</code>
+   * <code>./src/extensions</code>
    * @returns {void}
    */
   loadExtensionDir (dir = path.join(__dirname, "extensions")) {
