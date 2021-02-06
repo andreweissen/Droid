@@ -7,13 +7,21 @@
  * functionality used to interact with the application in the server's channels.
  * @module commander
  * @author Andrew Eissen <andrew@andreweissen.com>
+ * @requires fs
  * @requires path
+ * @requires discord
  * @requires extension
  */
 "use strict";
 
+/** @const {Object} fs - File system module */
+const fs = require("fs");
+
 /** @const {Object} path - Path module */
 const path = require("path");
+
+/** @const {Object} Discord - Discord.js module (class) */
+const Discord = require("discord.js");
 
 /** @const {Object} Extension - Extension module, returns class */
 const Extension = require("../../util/extension.js");
