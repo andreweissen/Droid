@@ -142,8 +142,8 @@ class Client {
      * additions of command classes is possible.
      * @member {Discord.Collection}
      * @see [Discord.Collection]{@link
-      * https://discord.js.org/#/docs/collection/master/class/Collection}
-      */
+     * https://discord.js.org/#/docs/collection/master/class/Collection}
+     */
     this.extensions = new Discord.Collection();
 
     /**
@@ -159,21 +159,9 @@ class Client {
      */
     this._loggedIn = false;
 
-    // Load extensions and populate Collection with objects
-    this.loadExtensionDir(path.join(__dirname, "extensions"));
-
     // Set default event listeners and associated callbacks
     this.client.on("ready", this.onReady.bind(this));
     this.client.on("error", this.onError.bind(this));
-
-    // Set custom event listeners for all extensions to be run on new message
-    this.extensions.forEach(extension => {
-      this.client.on("message", extension.onMessage.bind(extension));
-
-      if (this.config.utility.debug) {
-        console.log(`${extension.name} -> ${this.lang.client.success.online}`);
-      }
-    });
   }
 
   /**
@@ -298,10 +286,11 @@ class Client {
    * which it originated, in that it requires the <code>js</code> file
    * constituting the extension application logic, partitions off the part of
    * the <code>lang.json</code> <code>object</code> relating to the extension in
-   * question, instantiates a new extension class, checks for duplicates already
-   * present in [Client#extensions]{@link module:client~Client#extensions}, and
-   * finally adds the instance to the <code>Collection</code> and marks it as
-   * loaded.
+   * question, instantiates a new extension class, and checks for duplicates
+   * already in [Client#extensions]{@link module:client~Client#extensions}.
+   * Finally, the method adds the instance to the <code>Collection</code>, marks
+   * it as loaded, and attaches its [onMessage]{@link
+   * module:extension~Extension#onMessage} as a dedicated event listener.
    * @function
    * @see [Commander#loadCommand]{@link module:commander~Commander#loadCommand}
    * @param {string} [dir=path.join(__dirname, "extensions")] - The directory
@@ -321,13 +310,21 @@ class Client {
       // Instantiate new instance of extension class and mark as unloaded
       const extension = new Extension(file, false, this.config, lang);
 
+      // Debug
       if (this.config.utility.debug) {
         console.log(`${file} -> ${this.extensions.has(file)}`);
       }
 
       // Add new extension to Collection if not present and mark as loaded
       if (!this.extensions.has(extension) && !extension.loaded) {
+
+        // Add to collection with string name as key
         this.extensions.set(extension.name, extension);
+
+        // Add event listener for new messages
+        this.client.on("message", extension.onMessage.bind(extension));
+
+        // Mark as fully loaded
         extension.loaded = true;
       }
     });

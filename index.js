@@ -44,5 +44,8 @@ dotenv.config();
 /** @const {Client} client - New <code>Client</code> instance */
 const client = new Client(process.env.TOKEN, config, lang);
 
+// Load extensions and populate client's Collection with instances
+client.loadExtensionDir(path.join(__dirname, "src", "extensions"));
+
 // Create and open websocket via Discord.Client#login
 client.login(process.env.TOKEN);

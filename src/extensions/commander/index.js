@@ -86,6 +86,8 @@ class Commander extends Extension {
    * [onMessage]{@link module:extension~Extension#onMessage} if the command has
    * somehow not been loaded previously.
    * @function
+   * @see [Client#loadExtensionDir]{@link
+   * module:client~Client#loadExtensionDir}
    * @param {string} file - The name of the requested command to load (should
    * come suffixed with "<code>.js</code>" in all cases)
    * @param {string} [dir=path.join(__dirname, "lib")] - Directory
@@ -107,13 +109,18 @@ class Commander extends Extension {
     // Instantiate new instance of command class and mark as unloaded
     const command = new Command(name, false, this.config, lang);
 
+    // Debug
     if (this.config.utility.debug) {
       console.log(`${command.name} -> ${this.commands.has(command.name)}`);
     }
 
     // Add new command to map if not already extant and mark as loaded
     if (!this.commands.has(command.name) && !command.loaded) {
+
+      // Add to collection with string name as key
       this.commands.set(command.name, command);
+
+      // Mark as fully loaded
       command.loaded = true;
     }
   }
