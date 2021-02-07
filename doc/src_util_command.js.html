@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: src/util/command.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: src/util/command.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// @ts-check
+/**
+ * @file The &lt;code>command&lt;/code> module (there's an Apollo space program joke
+ * in there somewhere) serves to encapsulate the class of the same name. The
+ * &lt;code>Command&lt;/code> class serves as a largely content-free superclass that
+ * is extended by subsequent subclasses representing specific commands users
+ * may invoke on the server.
+ * @module command
+ * @author Andrew Eissen &lt;andrew@andreweissen.com>
+ */
+"use strict";
+
+/**
+ * @classdesc The &lt;code>Command&lt;/code> class serves as a framework class whose
+ * sole purpose is to permit extension by more specific command classes. The
+ * most important member is the unimplemented method, [Command#execute]{@link
+ * Command#execute}, which all extending classes are required to implement. This
+ * method is called whenever a command is invoked in a server channel, and
+ * contains the application logic responsible for processing the implementation
+ * of that particular command. The other methods and members belonging to the
+ * &lt;code>Command&lt;/code> class are the various private properties and their
+ * setter/getter methods. Other extending classes may implement their own
+ * private prototype methods as needed, but &lt;code>Command&lt;/code> exists solely
+ * for subsequent extension and thus lacks its own dedicated functionality.
+ * @class
+ */
+class Command {
+
+  /**
+   * @description The &lt;code>Command&lt;/code> constructor is used simply to store
+   * the &lt;code>string&lt;/code>, &lt;code>boolean&lt;/code>, and &lt;code>Object&lt;/code>
+   * parameter properties passed during the class's initial initialization
+   * (via [loadCommand]{@link module:commander~Commander#loadCommand}) in
+   * private fields via dedicated setters that ensure parameters are of the
+   * correct data type.
+   * @constructor
+   * @param {string} name - Name of the command (verify, about, etc.), not the
+   * specific configurable text the user must use to invoke the command.
+   * @param {boolean} loaded - Flag denoting the command's loaded or unloaded
+   * status, depending on whether a class instance already exists in the
+   * &lt;code>Commander&lt;/code> instance's &lt;code>Discord.Collection&lt;/code> map,
+   * namely [Commander#commands]{@link module:commander~Commander#commands}.
+   * @param {Object} config - Ultimately, a reference to the original
+   * [Client#config]{@link module:client~Client#config} &lt;code>Object&lt;/code> that
+   * is likewise passed to each extension and command on initialization. This
+   * parameter contains all the custom configuration options available for
+   * tweaking prior to installation.
+   * @param {Object} lang - A reference to a command-specific property of the
+   * &lt;code>Commander&lt;/code> plugin's [lang]{@link
+   * module:commander~Commander#lang} property, which is itself a property of
+   * the &lt;code>Client&lt;/code> class's own [lang]{@link module:client~Client#lang}
+   * &lt;code>Object&lt;/code> specific to the &lt;code>Commander&lt;/code> extension.
+   */
+  constructor (name, loaded, config, lang) {
+
+    /**
+     * @description The &lt;code>name&lt;/code> &lt;code>string&lt;/code> property is a
+     * private internal field representing the name of the specific command
+     * being initialized rather than the configurable text the user must
+     * reference when invoking the command in question.
+     * @member {string}
+     */
+    this.name = name;
+
+    /**
+     * @description The &lt;code>loaded&lt;/code> &lt;code>boolean&lt;/code> property is a
+     * private internal field denoting whether a class instance of its type
+     * exists in the &lt;code>Commander&lt;/code>'s [Discord.Collection]{@link
+     * https://discord.js.org/#/docs/collection/master/class/Collection}
+     * property, [commands]{@link module:commander~Commander#commands}.
+     * @member {boolean}
+     */
+    this.loaded = loaded;
+
+    /**
+     * @description The &lt;code>config&lt;/code> &lt;code>Object&lt;/code> property is
+     * ultimately a reference to the original [Client#config]{@link
+     * module:client~Client#config} &lt;code>Object&lt;/code> that is likewise passed
+     * to each extension and command on their initializations. This parameter is
+     * the container for all the custom configuration options available for
+     * tweaking prior to the installation of the application.
+     * @member {Object}
+     * @see [Client#config]{@link module:client~Client#config}
+     */
+    this.config = config;
+
+    /**
+     * @description The &lt;code>lang&lt;/code> &lt;code>Object&lt;/code> property is a
+     * reference to a command-specific property of the &lt;code>Commander&lt;/code>
+     * plugin's [lang]{@link module:commander~Commander#lang} property, which is
+     * itself a property of the &lt;code>Client&lt;/code> class's own [lang]{@link
+     * module:client~Client#lang} &lt;code>Object&lt;/code> specific to the
+     * &lt;code>Commander&lt;/code> extension.
+     * @member {Object}
+     * @see [Commander#lang]{@link module:commander~Commander#lang}
+     * @see [Client#lang]{@link module:client~Client#lang}
+     */
+    this.lang = lang;
+  }
+
+  /**
+   * @description &lt;code>set name&lt;/code> serves as the setter method for the
+   * &lt;code>name&lt;/code> parameter property representing the name of the command.
+   * It checks to ensure that the parameter &lt;code>name&lt;/code> is of the
+   * primitive &lt;code>string&lt;/code> type or the &lt;code>String&lt;/code> wrapper
+   * &lt;code>Object&lt;/code>, applying an empty string to the internal field if
+   * the parameter is not of the proper type.
+   * @function
+   * @param {string|String} name - The parameter to be assigned as the internal
+   * &lt;code>_name&lt;/code>. It should be a primitive &lt;code>string&lt;/code> or an
+   * &lt;code>Object&lt;/code> of the &lt;code>String&lt;/code> wrapper class.
+   * @returns {void}
+   */
+  set name (name) {
+    // @ts-ignore
+    this._name = typeof name === "string" || name instanceof String ? name : "";
+  }
+
+  /**
+   * @description &lt;code>set loaded&lt;/code> serves as the setter method for the
+   * &lt;code>loaded&lt;/code> parameter property representing whether the commands
+   * extension has already instantiated a member of the class and added it to
+   * the &lt;code>Commander&lt;/code>'s own [Discord.Collection]{@link
+   * https://discord.js.org/#/docs/collection/master/class/Collection} property,
+   * [commands]{@link module:commander~Commander#commands}. It checks to ensure
+   * that the parameter &lt;code>loaded&lt;/code> is of the primitive
+   * &lt;code>boolean&lt;/code> type, applying a default value of &lt;code>false&lt;/code>
+   * to the internal field if the parameter is not of the proper type.
+   * @function
+   * @param {boolean} loaded - The parameter to be assigned as the internal
+   * &lt;code>_loaded&lt;/code>. It should be a primitive &lt;code>boolean&lt;/code>.
+   * @returns {void}
+   */
+  set loaded (loaded) {
+    this._loaded = typeof loaded === "boolean" ? loaded : false;
+  }
+
+  /**
+   * @description &lt;code>set config&lt;/code> serves as the setter method for the
+   * &lt;code>config&lt;/code> parameter property representing a reference to the
+   * original &lt;code>Client&lt;/code> class instance's own [config]{@link
+   * module:client~Client#config} &lt;code>Object&lt;/code>, the container for all the
+   * custom configuration options available for tweaking prior to the
+   * installation of the application. It checks to ensure that the parameter
+   * &lt;code>config&lt;/code> is of the &lt;code>Object&lt;/code> type, applying a default
+   * empty &lt;code>Object&lt;/code> to the internal field if the parameter is not of
+   * the proper type.
+   * @function
+   * @param {Object} config - The parameter to be assigned as the internal
+   * &lt;code>_config&lt;/code>. It should be an &lt;code>Object&lt;/code>.
+   * @returns {void}
+   */
+  set config (config) {
+    this._config = typeof config === "object" &amp;&amp; config.constructor === Object
+      ? config
+      : {};
+  }
+
+  /**
+   * @description &lt;code>set lang&lt;/code> serves as the setter method for the
+   * &lt;code>lang&lt;/code> parameter property representing a reference to the
+   * command-specific property of the &lt;code>Commander&lt;/code> plugin's
+   * [lang]{@link module:commander~Commander#lang} property, which is itself a
+   * property of the &lt;code>Client&lt;/code> class's own [lang]{@link
+   * module:client~Client#lang} &lt;code>Object&lt;/code> specific to the
+   * &lt;code>Commander&lt;/code> extension. It checks to ensure that the parameter
+   * &lt;code>config&lt;/code> is of the &lt;code>Object&lt;/code> type, applying a default
+   * empty &lt;code>Object&lt;/code> to the internal field if the parameter is not of
+   * the proper type.
+   * @function
+   * @param {Object} lang - The parameter to be assigned as the internal
+   * &lt;code>_lang&lt;/code>. It should be an &lt;code>Object&lt;/code>.
+   * @returns {void}
+   */
+  set lang (lang) {
+    this._lang = typeof lang === "object" &amp;&amp; lang.constructor === Object
+      ? lang
+      : {};
+  }
+
+  /**
+   * @description &lt;code>get name&lt;/code> serves as the getter method for the
+   * &lt;code>name&lt;/code> property. It simply returns the value of the internal
+   * field, be that the parameter value passed to the constructor during
+   * initialization or the default empty &lt;code>string&lt;/code> value.
+   * @function
+   * @returns {string} _name - Value of the internal &lt;code>string&lt;/code>
+   */
+  get name () {
+    return this._name;
+  }
+
+  /**
+   * @description &lt;code>get loaded&lt;/code> serves as the getter method for the
+   * &lt;code>loaded&lt;/code> property. It simply returns the value of the internal
+   * field, be that the parameter value passed to the constructor during
+   * initialization or the default &lt;code>false&lt;/code> value.
+   * @function
+   * @returns {boolean} _loaded - Value of the internal &lt;code>boolean&lt;/code>
+   */
+  get loaded () {
+    return this._loaded;
+  }
+
+  /**
+   * @description &lt;code>get config&lt;/code> serves as the getter method for the
+   * &lt;code>config&lt;/code> property. It simply returns the value of the internal
+   * field, be that the parameter value passed to the constructor during
+   * initialization or the default empty &lt;code>Object&lt;/code>.
+   * @function
+   * @returns {Object} _config - Value of the internal &lt;code>Object&lt;/code>
+   */
+  get config () {
+    return this._config;
+  }
+
+  /**
+   * @description &lt;code>get lang&lt;/code> serves as the getter method for the
+   * &lt;code>lang&lt;/code> property. It simply returns the value of the internal
+   * field, be that the parameter value passed to the constructor during
+   * initialization or the default empty &lt;code>Object&lt;/code>.
+   * @function
+   * @returns {Object} _lang - Value of the internal &lt;code>Object&lt;/code>
+   */
+  get lang () {
+    return this._lang;
+  }
+
+  /**
+   * @description The default &lt;code>execute&lt;/code> function is left
+   * unimplemented by default in the &lt;code>Command&lt;/code> superclass, with the
+   * expectation that extending subclasses be the ones to implement this
+   * function. It is the most important method of the respective classes, as it
+   * is the method invoked when users themselves invoke a command in the Discord
+   * server. It coordinates the application logic of the specific command, and
+   * may invoke other subclass-specific helper methods as required.
+   * @function
+   * @param {Object} message - A new [Discord.Message]{@link
+   * http://discord.js.org/#/docs/main/master/class/Message} class instance
+   * containing information pertaining to the most recent server message, its
+   * author, and the channel in which it was posted, among other data.
+   * @param {Array&lt;string>} args - An array of &lt;code>string&lt;/code>s constituting
+   * the arguments that follow the initial command invocation. In the case of
+   * verifications and "!about" queries, these arguments are the words that make
+   * up the username as separated by spaces; for example, the username "Jabba
+   * the Hutt" would be passed as &lt;code>["Jabba", "the", "Hutt"]&lt;/code> as the
+   * &lt;code>args&lt;/code> argument.
+   * @param {Function} logReply - A reference to the &lt;code>Commander&lt;/code>
+   * extension's own copy of [Extension#addReply]{@link
+   * module:extension~Extension#addReply} method, bound to that extension's
+   * class instance. This ensures command subclasses are not directly
+   * interfacing with the server channels, a responsibility under the exclusive
+   * purview of the &lt;code>Commander&lt;/code> extension class and its respective
+   * methods alone.
+   * @returns {void}
+   */
+  execute (message, args, logReply) {}
+}
+
+module.exports = Command;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-about.html">about</a></li><li><a href="module-client.html">client</a></li><li><a href="module-command.html">command</a></li><li><a href="module-commander.html">commander</a></li><li><a href="module-extension.html">extension</a></li><li><a href="module-logger.html">logger</a></li><li><a href="module-ping.html">ping</a></li><li><a href="module-resource.html">resource</a></li><li><a href="module-verify.html">verify</a></li></ul><h3>Classes</h3><ul><li><a href="module-about-About.html">About</a></li><li><a href="module-client-Client.html">Client</a></li><li><a href="module-commander-Commander.html">Commander</a></li><li><a href="module-command-Command.html">Command</a></li><li><a href="module-extension-Extension.html">Extension</a></li><li><a href="module-logger-Logger.html">Logger</a></li><li><a href="module-ping-Ping.html">Ping</a></li><li><a href="module-resource-Resource.html">Resource</a></li><li><a href="module-verify-Verify.html">Verify</a></li></ul><h3>Global</h3><ul><li><a href="global.html#Client">Client</a></li><li><a href="global.html#client">client</a></li><li><a href="global.html#config">config</a></li><li><a href="global.html#dotenv">dotenv</a></li><li><a href="global.html#lang">lang</a></li><li><a href="global.html#path">path</a></li><li><a href="global.html#Resource">Resource</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Sat Feb 06 2021 19:04:31 GMT-0500 (Eastern Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

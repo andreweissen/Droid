@@ -54,7 +54,7 @@
 
 
 <div class="description">
-    The <code>Command</code> constructor is used simply to storethe <code>string</code>, <code>boolean</code>, and <code>Object</code>parameter properties passed during the class's initial initialization(via <a href="module-client-Client.html#loadCommand"><code>loadCommand</code></a>) in privatefields via dedicated setters that ensure parameters are of the correct datatype.
+    The <code>Command</code> constructor is used simply to storethe <code>string</code>, <code>boolean</code>, and <code>Object</code>parameter properties passed during the class's initial initialization(via <a href="module-commander-Commander.html#loadCommand"><code>loadCommand</code></a>) inprivate fields via dedicated setters that ensure parameters are of thecorrect data type.
 </div>
 
 
@@ -129,7 +129,7 @@
 
             
 
-            <td class="description last">Flag denoting the command's loaded or unloadedstatus, depending on whether a class instance already exists in the<code>Client</code> instance's <code>Discord.Collection</code> map, namely<code>collection</code>.</td>
+            <td class="description last">Flag denoting the command's loaded or unloadedstatus, depending on whether a class instance already exists in the<code>Commander</code> instance's <code>Discord.Collection</code> map,namely <a href="module-commander-Commander.html#commands"><code>Commander#commands</code></a>.</td>
         </tr>
 
     
@@ -152,7 +152,7 @@
 
             
 
-            <td class="description last">A reference to the instantiating<code>Client</code> class instance's own <a href="module-client-Client.html#config"><code>Client#config</code></a> <code>Object</code>, containing all the customconfiguration options available for tweaking prior to installation.</td>
+            <td class="description last">Ultimately, a reference to the original<a href="module-client-Client.html#config"><code>Client#config</code></a> <code>Object</code> thatis likewise passed to each extension and command on initialization. Thisparameter contains all the custom configuration options available fortweaking prior to installation.</td>
         </tr>
 
     
@@ -175,7 +175,7 @@
 
             
 
-            <td class="description last">A reference to a subclass-specific nested<code>Object</code> constituting a property of the instantiating<code>Client</code> class instance's own<a href="module-client-Client.html#lang"><code>lang</code></a> <code>Object</code>, containingmessages specific to the subclass being instantiated rather than areference to the whole <code>Client#lang</code> <code>Object</code>.</td>
+            <td class="description last">A reference to a command-specific property of the<code>Commander</code> plugin's <code>lang</code> property, which is itself a property ofthe <code>Client</code> class's own <a href="module-client-Client.html#lang"><code>lang</code></a><code>Object</code> specific to the <code>Commander</code> extension.</td>
         </tr>
 
     
@@ -216,7 +216,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_commands_util_command.js.html">src/commands/util/command.js</a>, <a href="src_commands_util_command.js.html#line27">line 27</a>
+        <a href="src_util_command.js.html">src/util/command.js</a>, <a href="src_util_command.js.html#line27">line 27</a>
     </li></ul></dd>
     
 
@@ -272,7 +272,7 @@
 
 
 <div class="description">
-    The <code>config</code> <code>Object</code> property is areference to the instantiating <code>Client</code> class instance's own<a href="module-client-Client.html#config"><code>config</code></a> <code>Object</code>, thecontainer for all the custom configuration options available for tweakingprior to installation of the application.
+    The <code>config</code> <code>Object</code> property isultimately a reference to the original <a href="module-client-Client.html#config"><code>Client#config</code></a> <code>Object</code> that is likewise passedto each extension and command on their initializations. This parameter isthe container for all the custom configuration options available fortweaking prior to the installation of the application.
 </div>
 
 
@@ -320,7 +320,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_commands_util_command.js.html">src/commands/util/command.js</a>, <a href="src_commands_util_command.js.html#line84">line 84</a>
+        <a href="src_util_command.js.html">src/util/command.js</a>, <a href="src_util_command.js.html#line85">line 85</a>
     </li></ul></dd>
     
 
@@ -351,7 +351,7 @@
 
 
 <div class="description">
-    The <code>lang</code> <code>Object</code> property is areference to a subclass-specific nested <code>Object</code> constitutinga property of the instantiating <code>Client</code> class instance's own<a href="module-client-Client.html#lang"><code>lang</code></a> <code>Object</code>. This<code>Object</code>'s contents include messages specific to the subclassbeing instantiated rather than a reference to the whole<code>Client#lang</code> <code>Object</code>.
+    The <code>lang</code> <code>Object</code> property is areference to a command-specific property of the <code>Commander</code>plugin's <code>lang</code> property, which isitself a property of the <code>Client</code> class's own <a href="module-client-Client.html#lang"><code>lang</code></a> <code>Object</code> specific to the<code>Commander</code> extension.
 </div>
 
 
@@ -399,7 +399,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_commands_util_command.js.html">src/commands/util/command.js</a>, <a href="src_commands_util_command.js.html#line97">line 97</a>
+        <a href="src_util_command.js.html">src/util/command.js</a>, <a href="src_util_command.js.html#line98">line 98</a>
     </li></ul></dd>
     
 
@@ -409,6 +409,8 @@
     <dt class="tag-see">See:</dt>
     <dd class="tag-see">
         <ul>
+            <li><code>Commander#lang</code></li>
+        
             <li><a href="module-client-Client.html#lang"><code>Client#lang</code></a></li>
         </ul>
     </dd>
@@ -430,7 +432,7 @@
 
 
 <div class="description">
-    The <code>loaded</code> <code>boolean</code> property is aprivate internal field denoting whether a class instance of its typeexists in the <code>Client</code> instance's <a href="https://discord.js.org/#/docs/collection/master/class/Collection">Discord.Collection</a>property, <a href="module-client-Client.html#commands"><code>commands</code></a>.
+    The <code>loaded</code> <code>boolean</code> property is aprivate internal field denoting whether a class instance of its typeexists in the <code>Commander</code>'s <a href="https://discord.js.org/#/docs/collection/master/class/Collection">Discord.Collection</a>property, <a href="module-commander-Commander.html#commands"><code>commands</code></a>.
 </div>
 
 
@@ -478,7 +480,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_commands_util_command.js.html">src/commands/util/command.js</a>, <a href="src_commands_util_command.js.html#line73">line 73</a>
+        <a href="src_util_command.js.html">src/util/command.js</a>, <a href="src_util_command.js.html#line73">line 73</a>
     </li></ul></dd>
     
 
@@ -550,7 +552,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_commands_util_command.js.html">src/commands/util/command.js</a>, <a href="src_commands_util_command.js.html#line63">line 63</a>
+        <a href="src_util_command.js.html">src/util/command.js</a>, <a href="src_util_command.js.html#line63">line 63</a>
     </li></ul></dd>
     
 
@@ -586,7 +588,7 @@
 
 
 <div class="description">
-    <code>set config</code> serves as the setter method for the<code>config</code> parameter property representing the a reference to theinstantiating <code>Client</code> class instance's own<a href="module-client-Client.html#config"><code>config</code></a> <code>Object</code>, thecontainer for all the custom configuration options available for tweakingprior to installation of the application. It checks to ensure that theparameter <code>config</code> is of the <code>Object</code> type, applyinga default empty <code>Object</code> to the internal field if the parameteris not of the proper type.
+    <code>set config</code> serves as the setter method for the<code>config</code> parameter property representing a reference to theoriginal <code>Client</code> class instance's own <a href="module-client-Client.html#config"><code>config</code></a> <code>Object</code>, the container for all thecustom configuration options available for tweaking prior to theinstallation of the application. It checks to ensure that the parameter<code>config</code> is of the <code>Object</code> type, applying a defaultempty <code>Object</code> to the internal field if the parameter is not ofthe proper type.
 </div>
 
 
@@ -638,7 +640,7 @@
 
             
 
-            <td class="description last">The parameter to be assigned as the internal<code>_config</code>. It should be a primitive <code>Object</code>.</td>
+            <td class="description last">The parameter to be assigned as the internal<code>_config</code>. It should be an <code>Object</code>.</td>
         </tr>
 
     
@@ -679,7 +681,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_commands_util_command.js.html">src/commands/util/command.js</a>, <a href="src_commands_util_command.js.html#line153">line 153</a>
+        <a href="src_util_command.js.html">src/util/command.js</a>, <a href="src_util_command.js.html#line153">line 153</a>
     </li></ul></dd>
     
 
@@ -785,7 +787,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_commands_util_command.js.html">src/commands/util/command.js</a>, <a href="src_commands_util_command.js.html#line211">line 211</a>
+        <a href="src_util_command.js.html">src/util/command.js</a>, <a href="src_util_command.js.html#line213">line 213</a>
     </li></ul></dd>
     
 
@@ -903,7 +905,7 @@
 
             
 
-            <td class="description last">A new <code>Discord.Message</code> class instancecontaining information pertaining to the most recent server message, itsauthor, and the channel in which it was posted, among other data.</td>
+            <td class="description last">A new <a href="http://discord.js.org/#/docs/main/master/class/Message">Discord.Message</a> class instancecontaining information pertaining to the most recent server message, itsauthor, and the channel in which it was posted, among other data.</td>
         </tr>
 
     
@@ -949,7 +951,7 @@
 
             
 
-            <td class="description last">A reference to the <a href="module-client-Client.html#addReply"><code>Client#addReply</code></a> method, bound to the <code>Client</code>class instance. This ensures command subclasses are not directlyinterfacing with the server channels, a responsibility under the exclusivepurview of the Client class and its respective methods alone.</td>
+            <td class="description last">A reference to the <code>Commander</code>extension's own copy of <a href="module-extension-Extension.html#addReply"><code>Extension#addReply</code></a> method, bound to that extension'sclass instance. This ensures command subclasses are not directlyinterfacing with the server channels, a responsibility under the exclusivepurview of the <code>Commander</code> extension class and its respectivemethods alone.</td>
         </tr>
 
     
@@ -990,7 +992,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_commands_util_command.js.html">src/commands/util/command.js</a>, <a href="src_commands_util_command.js.html#line252">line 252</a>
+        <a href="src_util_command.js.html">src/util/command.js</a>, <a href="src_util_command.js.html#line257">line 257</a>
     </li></ul></dd>
     
 
@@ -1052,7 +1054,7 @@
 
 
 <div class="description">
-    <code>set lang</code> serves as the setter method for the<code>lang</code> parameter property representing the a reference to theinstantiating <code>Client</code> class instance's own<a href="module-client-Client.html#lang"><code>lang</code></a> <code>Object</code> containingmessages specific to the subclass being instantiated It checks to ensurethat the parameter <code>config</code> is of the <code>Object</code> type,applying a default empty <code>Object</code> to the internal field if theparameter is not of the proper type.
+    <code>set lang</code> serves as the setter method for the<code>lang</code> parameter property representing a reference to thecommand-specific property of the <code>Commander</code> plugin's<code>lang</code> property, which is itself aproperty of the <code>Client</code> class's own <a href="module-client-Client.html#lang"><code>lang</code></a> <code>Object</code> specific to the<code>Commander</code> extension. It checks to ensure that the parameter<code>config</code> is of the <code>Object</code> type, applying a defaultempty <code>Object</code> to the internal field if the parameter is not ofthe proper type.
 </div>
 
 
@@ -1104,7 +1106,7 @@
 
             
 
-            <td class="description last">The parameter to be assigned as the internal<code>_lang</code>. It should be a primitive <code>Object</code>.</td>
+            <td class="description last">The parameter to be assigned as the internal<code>_lang</code>. It should be an <code>Object</code>.</td>
         </tr>
 
     
@@ -1145,7 +1147,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_commands_util_command.js.html">src/commands/util/command.js</a>, <a href="src_commands_util_command.js.html#line173">line 173</a>
+        <a href="src_util_command.js.html">src/util/command.js</a>, <a href="src_util_command.js.html#line175">line 175</a>
     </li></ul></dd>
     
 
@@ -1251,7 +1253,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_commands_util_command.js.html">src/commands/util/command.js</a>, <a href="src_commands_util_command.js.html#line223">line 223</a>
+        <a href="src_util_command.js.html">src/util/command.js</a>, <a href="src_util_command.js.html#line225">line 225</a>
     </li></ul></dd>
     
 
@@ -1317,7 +1319,7 @@
 
 
 <div class="description">
-    <code>set loaded</code> serves as the setter method for the<code>loaded</code> parameter property representing whether the greaterapplication has already instantiated a member of the class and added it tothe <code>Client</code> class instance's <a href="https://discord.js.org/#/docs/collection/master/class/Collection">Discord.Collection</a> property,<a href="module-client-Client.html#commands"><code>commands</code></a>.It checks to ensure that the parameter <code>loaded</code> is of theprimitive <code>boolean</code> type, applying a default value of<code>false</code> to the internal field if the parameter is not of theproper type.
+    <code>set loaded</code> serves as the setter method for the<code>loaded</code> parameter property representing whether the commandsextension has already instantiated a member of the class and added it tothe <code>Commander</code>'s own <a href="https://discord.js.org/#/docs/collection/master/class/Collection">Discord.Collection</a> property,<a href="module-commander-Commander.html#commands"><code>commands</code></a>. It checks to ensurethat the parameter <code>loaded</code> is of the primitive<code>boolean</code> type, applying a default value of <code>false</code>to the internal field if the parameter is not of the proper type.
 </div>
 
 
@@ -1410,7 +1412,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_commands_util_command.js.html">src/commands/util/command.js</a>, <a href="src_commands_util_command.js.html#line134">line 134</a>
+        <a href="src_util_command.js.html">src/util/command.js</a>, <a href="src_util_command.js.html#line134">line 134</a>
     </li></ul></dd>
     
 
@@ -1516,7 +1518,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_commands_util_command.js.html">src/commands/util/command.js</a>, <a href="src_commands_util_command.js.html#line199">line 199</a>
+        <a href="src_util_command.js.html">src/util/command.js</a>, <a href="src_util_command.js.html#line201">line 201</a>
     </li></ul></dd>
     
 
@@ -1678,7 +1680,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_commands_util_command.js.html">src/commands/util/command.js</a>, <a href="src_commands_util_command.js.html#line113">line 113</a>
+        <a href="src_util_command.js.html">src/util/command.js</a>, <a href="src_util_command.js.html#line114">line 114</a>
     </li></ul></dd>
     
 
@@ -1784,7 +1786,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_commands_util_command.js.html">src/commands/util/command.js</a>, <a href="src_commands_util_command.js.html#line187">line 187</a>
+        <a href="src_util_command.js.html">src/util/command.js</a>, <a href="src_util_command.js.html#line189">line 189</a>
     </li></ul></dd>
     
 
@@ -1852,13 +1854,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-about.html">about</a></li><li><a href="module-client.html">client</a></li><li><a href="module-command.html">command</a></li><li><a href="module-ping.html">ping</a></li><li><a href="module-resource.html">resource</a></li><li><a href="module-verify.html">verify</a></li></ul><h3>Classes</h3><ul><li><a href="module-about-About.html">About</a></li><li><a href="module-client-Client.html">Client</a></li><li><a href="module-command-Command.html">Command</a></li><li><a href="module-ping-Ping.html">Ping</a></li><li><a href="module-resource-Resource.html">Resource</a></li><li><a href="module-verify-Verify.html">Verify</a></li></ul><h3>Global</h3><ul><li><a href="global.html#Client">Client</a></li><li><a href="global.html#client">client</a></li><li><a href="global.html#config">config</a></li><li><a href="global.html#dotenv">dotenv</a></li><li><a href="global.html#lang">lang</a></li><li><a href="global.html#path">path</a></li><li><a href="global.html#Resource">Resource</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-about.html">about</a></li><li><a href="module-client.html">client</a></li><li><a href="module-command.html">command</a></li><li><a href="module-commander.html">commander</a></li><li><a href="module-extension.html">extension</a></li><li><a href="module-logger.html">logger</a></li><li><a href="module-ping.html">ping</a></li><li><a href="module-resource.html">resource</a></li><li><a href="module-verify.html">verify</a></li></ul><h3>Classes</h3><ul><li><a href="module-about-About.html">About</a></li><li><a href="module-client-Client.html">Client</a></li><li><a href="module-commander-Commander.html">Commander</a></li><li><a href="module-command-Command.html">Command</a></li><li><a href="module-extension-Extension.html">Extension</a></li><li><a href="module-logger-Logger.html">Logger</a></li><li><a href="module-ping-Ping.html">Ping</a></li><li><a href="module-resource-Resource.html">Resource</a></li><li><a href="module-verify-Verify.html">Verify</a></li></ul><h3>Global</h3><ul><li><a href="global.html#Client">Client</a></li><li><a href="global.html#client">client</a></li><li><a href="global.html#config">config</a></li><li><a href="global.html#dotenv">dotenv</a></li><li><a href="global.html#lang">lang</a></li><li><a href="global.html#path">path</a></li><li><a href="global.html#Resource">Resource</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Sun Dec 20 2020 09:58:56 GMT-0500 (Eastern Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Sat Feb 06 2021 19:04:31 GMT-0500 (Eastern Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

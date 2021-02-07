@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: src/util/resource.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: src/util/resource.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @file The &lt;code>resource&lt;/code> module serves to encapsulate the class of the
+ * same name. The &lt;code>Resource&lt;/code> class is used to serve the most updated
+ * version of the requested resource, checking for any custom user-defined
+ * resources in the home directory and reconciling their values with those of
+ * the default resource stored in &lt;code>./src/resources&lt;/code> before returning
+ * the assembled result as an &lt;code>Object&lt;/code>.
+ * @module resource
+ * @author Andrew Eissen &lt;andrew@andreweissen.com>
+ */
+"use strict";
+
+/**
+ * @classdesc The &lt;code>Resource&lt;/code> class serves as a middleman that handles
+ * all requests for JSON data stored in &lt;code>./src/resources&lt;/code>, the
+ * contents of which directory constitute language data representing the text of
+ * messages logged by the application in the server and various configuration
+ * data coordinating the manner in which the application is run from the user's
+ * perspective.
+ * &lt;br />
+ * &lt;br />
+ * All of these resources are technically user-configurable, meaning that an
+ * implementing user may include custom &lt;code>config.json&lt;/code> and
+ * &lt;code>lang.json&lt;/code> files in the root directory if the defaults stored in
+ * &lt;code>./src/resources&lt;/code> are not sufficient. This class is responsible
+ * for checking if such custom files exist, and if they do, reconciling their
+ * contents with the default resource values before returning a new
+ * &lt;code>Object&lt;/code> that reflects the desired changes.
+ * &lt;br />
+ * &lt;br />
+ * The main means by which this is mediated is a [pure JS implementation]{@link
+ * module:resource~Resource#extend} of the deep merge/copy functionality
+ * provided by default in the jQuery library by [$.extend]{@link
+ * https://api.jquery.com/jquery.extend/}. The default JSON &lt;code>Object&lt;/code>
+ * of the desired resource is copied and its contents updated with values
+ * obtained from the user-input file in the home directory, allowing for the
+ * installing user to not have to copy/paste the entire contents of the desired
+ * default resource into a custom file just to make a few minor changes.
+ * @class
+ */
+class Resource {
+
+  /**
+   * @description The &lt;code>Resource&lt;/code> constructor handles the sanitation
+   * of the input parameter &lt;code>file&lt;/code> to ensure it is a properly
+   * suffixed JSON file, checks whether the optional custom resource file stored
+   * in the home directory by the implementing user exists, and chooses whether
+   * to invoke &lt;code>Resource#extend&lt;/code> and reconcile user input with
+   * default values or simply return the standard default resource file on its
+   * own.
+   * @constructor
+   * @param {string|String} file - A &lt;code>string&lt;/code> representation of the
+   * requested file resource; this should a properly suffixed JSON file name.
+   * @returns {Object}
+   */
+  constructor (file) {
+    if (!file.endsWith(".json")) {
+      file += ".json";
+    }
+
+    // Get default JSON file from ./src/resources
+    this.defaults = require(`../resources/${file}`);
+
+    // Check if custom file exists in home directory
+    try {
+      this.custom = require(`../../${file}`);
+    } catch (error) {
+      return this.defaults;
+    }
+
+    return this.extend(this.defaults, this.custom);
+  }
+
+  /**
+   * @description The &lt;code>Resource#extend&lt;/code> method is a handwritten
+   * implementation of [$.extend]{@link https://api.jquery.com/jquery.extend/},
+   * one of the more useful default jQuery methods. Unlike that function,
+   * however, this implementation only performs recursive deep merging, not the
+   * shallow merge/copy made more readily available ES6+ via default methods
+   * like &lt;code>Object.assign&lt;/code>. This function is used to construct a new
+   * resource &lt;code>Object&lt;/code> that takes the values of the default resource
+   * JSON file and updates extant keys' values with those taken from the user
+   * input JSON file stored in the home directory. This allows for implementing
+   * users to choose only to override certain fields in a custom JSON file
+   * rather than having to copy/paste the whole default file just to make a few
+   * adjustments.
+   * @function
+   * @see [$.extend]{@link https://api.jquery.com/jquery.extend/}
+   * @returns {Object} - Ultimately, an updated resource &lt;code>Object&lt;/code>
+   * that contains reconciled default values and user input values.
+   */
+  extend () {
+    let i, j, keys, value, clone;
+
+    // Like $.extend, this supports > 2 parameter objects
+    for (i = 0, clone = {}; i &lt; arguments.length; i++) {
+      keys = Object.keys(arguments[i]);
+      for (j = 0; j &lt; keys.length; j++) {
+        value = arguments[i][keys[j]];
+        clone[keys[j]] = this.isObject.call(this, value)
+          ? this.extend.call(this, clone[keys[j]] || {}, value)
+          : value;
+      }
+    }
+
+    return clone;
+  }
+
+  /**
+   * @description This helper function is used by &lt;code>Resource#extend&lt;/code>
+   * to determine if subsequent recursive invocations of the method are required
+   * in the event of a nested &lt;code>Object&lt;/code> being encountered. The method
+   * simply checks if the input parameter &lt;code>value&lt;/code> is actually an
+   * &lt;code>Object&lt;/code>, returning a &lt;code>boolean&lt;/code> to this effect.
+   * @function
+   * @param {*} value - The value to be checked to determine if its type is
+   * &lt;code>Object&lt;/code>.
+   * @returns {boolean} - A status &lt;code>boolean&lt;/code> indicating whether the
+   * input parameter &lt;code>value&lt;/code> is of type &lt;code>Object&lt;/code>.
+   */
+  isObject (value) {
+    return value &amp;&amp; typeof value === "object" &amp;&amp; value.constructor === Object &amp;&amp;
+      Object.prototype.toString.call(value) === "[object Object]";
+  }
+}
+
+module.exports = Resource;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-about.html">about</a></li><li><a href="module-client.html">client</a></li><li><a href="module-command.html">command</a></li><li><a href="module-commander.html">commander</a></li><li><a href="module-extension.html">extension</a></li><li><a href="module-logger.html">logger</a></li><li><a href="module-ping.html">ping</a></li><li><a href="module-resource.html">resource</a></li><li><a href="module-verify.html">verify</a></li></ul><h3>Classes</h3><ul><li><a href="module-about-About.html">About</a></li><li><a href="module-client-Client.html">Client</a></li><li><a href="module-commander-Commander.html">Commander</a></li><li><a href="module-command-Command.html">Command</a></li><li><a href="module-extension-Extension.html">Extension</a></li><li><a href="module-logger-Logger.html">Logger</a></li><li><a href="module-ping-Ping.html">Ping</a></li><li><a href="module-resource-Resource.html">Resource</a></li><li><a href="module-verify-Verify.html">Verify</a></li></ul><h3>Global</h3><ul><li><a href="global.html#Client">Client</a></li><li><a href="global.html#client">client</a></li><li><a href="global.html#config">config</a></li><li><a href="global.html#dotenv">dotenv</a></li><li><a href="global.html#lang">lang</a></li><li><a href="global.html#path">path</a></li><li><a href="global.html#Resource">Resource</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Sat Feb 06 2021 19:04:31 GMT-0500 (Eastern Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Class: Commander</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Class: Commander</h1>
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        <h2><span class="attribs"><span class="type-signature"></span></span>
+            <span class="ancestors"><a href="module-commander.html">commander</a>~</span>Commander<span class="signature">()</span><span class="type-signature"></span></h2>
+        
+            <div class="class-description">The <code>Commander</code> class is a subclass implementation ofthe base <a href="module-extension-Extension.html"><code>Extension</code></a> superclass that servesto coordinate the loading and initialization of the <code>Droid</code> botapplication's command functionality. This plugin is used by the server'smembers to interact with the bot in various text channels, with associatedfunctionality ranging from the handling of verification requests to theprocessing of users' requests for information pertaining to a given user onthe wiki.<br /><br />As with all subclasses extending <code>Extension</code>, the<code>Commander</code> class includes an implementation of the required<a href="module-extension-Extension.html#onMessage"><code>Extension#onMessage</code></a> method.This method serves as the event listener callback function that is attachedto "message" events by the <a href="module-client-Client.html"><code>Client</code></a> and invokedwhen a new message is added to a server channel. This particularimplementation of the method checks if the new message includes a commandinvocation, and handles the request accordingly if it does.</div>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+
+    
+    <h2>Constructor</h2>
+    
+
+    
+    <h4 class="name" id="Commander"><span class="type-signature"></span>new Commander<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_extensions_commander_index.js.html">src/extensions/commander/index.js</a>, <a href="src_extensions_commander_index.js.html#line51">line 51</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    </div>
+
+    
+        <h3 class="subsection-title">Extends</h3>
+
+        
+
+
+    <ul>
+        <li>Extension</li>
+    </ul>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        
+            
+<h4 class="name" id="commands"><span class="type-signature"></span>commands<span class="type-signature"> :Discord.Collection</span></h4>
+
+
+
+
+<div class="description">
+    The <code>commands</code> property of the<code>Commander</code> class is an instance of the<code>Discord.Collection</code> class that isused to store initialized instances of command classes that extend thebase <a href="module-command-Command.html"><code>Command</code></a> class. A subclass thatextends the base <code>Map</code> JavaScript structure, it is populated by<a href="module-commander-Commander.html#loadCommandDir"><code>loadCommandDir</code></a>,usually at the start of the extension's initialization, thoughpost-initialization additions of command classes is possible.
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">Discord.Collection</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_extensions_commander_index.js.html">src/extensions/commander/index.js</a>, <a href="src_extensions_commander_index.js.html#line71">line 71</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://discord.js.org/#/docs/collection/master/class/Collection">Discord.Collection</a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="loadCommand"><span class="type-signature"></span>loadCommand<span class="signature">(file, dir<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {void}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    As its name implies, <code>loadCommand</code> is used tocreate a new class instance of the given command class specified in the<code>file</code> parameter and add that newly created instance to the<code>Commander</code> instance's <code>Discord.Collection</code> map<a href="module-commander-Commander.html#commands"><code>Commander#commands</code></a> forsubsequent retrieval and usage. It is primarily invoked within the contextof <a href="module-commander-Commander.html#loadCommandDir"><code>loadCommandDir</code></a> duringthe extension's initialization, though it may be invoked independently by<a href="module-extension-Extension.html#onMessage"><code>onMessage</code></a> if the command hassomehow not been loaded previously.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>file</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">The name of the requested command to load (shouldcome suffixed with "<code>.js</code>" in all cases)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>dir</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    path.join(__dirname, "lib")
+                
+                </td>
+            
+
+            <td class="description last">Directoryname in which the parameter command file may be found (default is<code>./src/extensions/commander/lib</code>)</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_extensions_commander_index.js.html">src/extensions/commander/index.js</a>, <a href="src_extensions_commander_index.js.html#line96">line 96</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">void</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="loadCommandDir"><span class="type-signature"></span>loadCommandDir<span class="signature">(dir<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {void}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    The <code>loadCommandDir</code> method is used to fetch the<code>string</code> names representing files stored in the parameterdirectory, filter out those that are not properly suffixed "js" JavaScriptmodules, and invoke <a href="module-commander-Commander.html#loadCommand"><code>Commander#loadCommand</code></a> on those for the purposes ofpopulating the <code>Commander</code> extension class instance's<code>Discord.Collection</code> map <a href="module-commander-Commander.html#commands"><code>Commander#commands</code></a> with commands. This function isinvoked by the class's constructor.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>dir</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    path.join(__dirname, "lib")
+                
+                </td>
+            
+
+            <td class="description last">Directoryname in which the parameter command file may be found (default is<code>./src/extensions/commander/lib</code>)</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_extensions_commander_index.js.html">src/extensions/commander/index.js</a>, <a href="src_extensions_commander_index.js.html#line137">line 137</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">void</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="onMessage"><span class="type-signature"></span>onMessage<span class="signature">(message)</span><span class="type-signature"> &rarr; {void}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Arguably the most important method of the class, the<code>Commander</code> extension's implementation of the required<a href="module-extension-Extension.html#onMessage"><code>Extension#onMessage</code></a> methodserves as the primary event listener callback function tasked with handlingDiscord "message" events. As such, it is responsible for checking to seeif the bot application should take an interest in the most recent message,namely the <a href="http://discord.js.org/#/docs/main/master/class/Message">Discord.Message</a> instance that ispassed as the method's sole parameter. If the message is determined toconstitute a command invocation, the method will check to see if a commandmatching the invoked name exists in <a href="module-commander-Commander.html#commands"><code>Commander#commands</code></a>, the <a href="https://discord.js.org/#/docs/collection/master/class/Collection">Discord.Collection</a>containing all previously instantiated command subclasses corresponding toavailable command functionality. If a match is found, the method invokesthe relevant implementation of <a href="module-command-Command.html#execute"><code>Command#execute</code></a> to pass the execution progression off tothe relevant subclass.<br /><br />On a more detailed level, the method begins by checking if the message wasa bot post or if the message was not prefixed with the command prefix usedto denote a command invocation. In such cases, the method ignores the post.However, if the message does constitute a wellformed command invocation,the method will validate the input and attempt to locate an availablecommand matching the desired command. If one is found, the method will thenquery <code>Commander#commands</code> to see if an instance of theappropriate command subclass extending <a href="module-command-Command.html"><code>Command</code></a> exists, invoking <a href="module-commander-Commander.html#loadCommand"><code>Commander#loadCommand</code></a> if not. Execution is then handedoff to the <code>Command#execute</code> method to address the requiredcommand action.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>message</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">A new <a href="http://discord.js.org/#/docs/main/master/class/Message">Discord.Message</a> class instancecontaining information pertaining to the most recent server message, itsauthor, and the channel in which it was posted, among other data.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_extensions_commander_index.js.html">src/extensions/commander/index.js</a>, <a href="src_extensions_commander_index.js.html#line185">line 185</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="module-extension-Extension.html#onMessage"><code>Extension#onMessage</code></a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">void</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-about.html">about</a></li><li><a href="module-client.html">client</a></li><li><a href="module-command.html">command</a></li><li><a href="module-commander.html">commander</a></li><li><a href="module-extension.html">extension</a></li><li><a href="module-logger.html">logger</a></li><li><a href="module-ping.html">ping</a></li><li><a href="module-resource.html">resource</a></li><li><a href="module-verify.html">verify</a></li></ul><h3>Classes</h3><ul><li><a href="module-about-About.html">About</a></li><li><a href="module-client-Client.html">Client</a></li><li><a href="module-commander-Commander.html">Commander</a></li><li><a href="module-command-Command.html">Command</a></li><li><a href="module-extension-Extension.html">Extension</a></li><li><a href="module-logger-Logger.html">Logger</a></li><li><a href="module-ping-Ping.html">Ping</a></li><li><a href="module-resource-Resource.html">Resource</a></li><li><a href="module-verify-Verify.html">Verify</a></li></ul><h3>Global</h3><ul><li><a href="global.html#Client">Client</a></li><li><a href="global.html#client">client</a></li><li><a href="global.html#config">config</a></li><li><a href="global.html#dotenv">dotenv</a></li><li><a href="global.html#lang">lang</a></li><li><a href="global.html#path">path</a></li><li><a href="global.html#Resource">Resource</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Sat Feb 06 2021 19:04:31 GMT-0500 (Eastern Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

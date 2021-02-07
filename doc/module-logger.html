@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Module: ping</title>
+    <title>JSDoc: Module: logger</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Module: ping</h1>
+    <h1 class="page-title">Module: logger</h1>
 
     
 
@@ -38,7 +38,7 @@
     <div class="container-overview">
     
         
-            <div class="description">The <code>ping</code> module serves to encapsulate the class of thesame name. The <code>Ping</code> class is used within the context of the botapplication as a simple and function-light means of testing whether theapplication is actually online, a required function given that the bot mayoften appear to be online while in reality is suffering from a bug.</div>
+            <div class="description">The <code>logger</code> module serves to encapsulate the class of thesame name. The <code>Logger</code> class, which extends the base<a href="module-extension-Extension.html"><code>Extension</code></a> superclass, serves tocoordinate the initialization of the message logger that passively observesthe verification channel and loads all user messages (including verificationrequests) to a dedicated moderator-only channel for review.</div>
         
 
         
@@ -94,7 +94,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_extensions_commander_lib_ping.js.html">src/extensions/commander/lib/ping.js</a>, <a href="src_extensions_commander_lib_ping.js.html#line2">line 2</a>
+        <a href="src_extensions_logger_index.js.html">src/extensions/logger/index.js</a>, <a href="src_extensions_logger_index.js.html#line2">line 2</a>
     </li></ul></dd>
     
 
@@ -134,7 +134,7 @@
         <h3 class="subsection-title">Requires</h3>
 
         <ul>
-            <li><a href="module-command.html">module:command</a></li>
+            <li><a href="module-extension.html">module:extension</a></li>
         </ul>
     
 
@@ -142,7 +142,7 @@
         <h3 class="subsection-title">Classes</h3>
 
         <dl>
-            <dt><a href="module-ping-Ping.html">Ping</a></dt>
+            <dt><a href="module-logger-Logger.html">Logger</a></dt>
             <dd></dd>
         </dl>
     
@@ -158,13 +158,13 @@
 
         
             
-<h4 class="name" id="~Command"><span class="type-signature">(inner, constant) </span>Command<span class="type-signature"> :Command</span></h4>
+<h4 class="name" id="~Extension"><span class="type-signature">(inner, constant) </span>Extension<span class="type-signature"> :Object</span></h4>
 
 
 
 
 <div class="description">
-    Command module, returns class
+    Extension module, returns class
 </div>
 
 
@@ -173,7 +173,7 @@
     <ul>
         <li>
             
-<span class="param-type">Command</span>
+<span class="param-type">Object</span>
 
 
         </li>
@@ -212,7 +212,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_extensions_commander_lib_ping.js.html">src/extensions/commander/lib/ping.js</a>, <a href="src_extensions_commander_lib_ping.js.html#line14">line 14</a>
+        <a href="src_extensions_logger_index.js.html">src/extensions/logger/index.js</a>, <a href="src_extensions_logger_index.js.html#line15">line 15</a>
     </li></ul></dd>
     
 

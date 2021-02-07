@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: Ping</title>
+    <title>JSDoc: Class: Logger</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: Ping</h1>
+    <h1 class="page-title">Class: Logger</h1>
 
     
 
@@ -29,9 +29,9 @@
 <header>
     
         <h2><span class="attribs"><span class="type-signature"></span></span>
-            <span class="ancestors"><a href="module-ping.html">ping</a>~</span>Ping<span class="signature">()</span><span class="type-signature"></span></h2>
+            <span class="ancestors"><a href="module-logger.html">logger</a>~</span>Logger<span class="signature">()</span><span class="type-signature"></span></h2>
         
-            <div class="class-description">The <code>Ping</code> class is among the simpliest possibleimplementations of the <a href="module-command-Command.html"><code>Command</code></a> class. Itssole method, the required <a href="module-command-Command.html#execute"><code>execute</code></a>,simply logs a "!pong" reply to the command invocation to indicate that thebot application is online and functional. This is helpful immediately afternew builds are committed, as the bot will sometimes deceptively appear to beonline when in reality it is broken on account of a bug.</div>
+            <div class="class-description">The <code>Logger</code> class is a subclass implementation of thebase <a href="module-extension-Extension.html"><code>Extension</code></a> superclass that serves tocoordinate the initialization of the message logger that passively observesthe verification channel and loads all user messages (including verificationrequests) to a dedicated moderator-only channel for subsequent review. Thisfunctionality used to be grouped in with <code>Commander</code> extension inan earlier version of the application, but the refactoring of the bot intomultiple plugins allowed for its removal to a separate extension file.<br /><br />As with all subclasses extending <code>Extension</code>, the<code>Commander</code> class includes an implementation of the required<a href="module-extension-Extension.html#onMessage"><code>Extension#onMessage</code></a> method.This method serves as the event listener callback function that is attachedto "message" events by the <a href="module-client-Client.html"><code>Client</code></a> and invokedwhen a new message is added to a server channel. This particularimplementation of the method passively observes the verification channel andlogs all new messages, including well-formed verification requests made usingthe <code>!verify</code> command, in a moderator-only channel for review.</div>
         
     
 </header>
@@ -46,7 +46,7 @@
     
 
     
-    <h4 class="name" id="Ping"><span class="type-signature"></span>new Ping<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="Logger"><span class="type-signature"></span>new Logger<span class="signature">()</span><span class="type-signature"></span></h4>
     
 
     
@@ -94,7 +94,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_extensions_commander_lib_ping.js.html">src/extensions/commander/lib/ping.js</a>, <a href="src_extensions_commander_lib_ping.js.html#line28">line 28</a>
+        <a href="src_extensions_logger_index.js.html">src/extensions/logger/index.js</a>, <a href="src_extensions_logger_index.js.html#line41">line 41</a>
     </li></ul></dd>
     
 
@@ -134,7 +134,7 @@
 
 
     <ul>
-        <li>Command</li>
+        <li>Extension</li>
     </ul>
 
 
@@ -161,7 +161,7 @@
     
 
     
-    <h4 class="name" id="execute"><span class="type-signature"></span>execute<span class="signature">(message, args, logReply)</span><span class="type-signature"> &rarr; {void}</span></h4>
+    <h4 class="name" id="onMessage"><span class="type-signature"></span>onMessage<span class="signature">(message)</span><span class="type-signature"> &rarr; {void}</span></h4>
     
 
     
@@ -169,7 +169,7 @@
 
 
 <div class="description">
-    The simplest implementation of the <code>Command</code>class's required <a href="module-command-Command.html#execute"><code>Command#execute</code></a>method, <code>Ping#execute</code> is used solely to log a temporaryresponse message in the channel on invocation to indicate to the developerthat the application is online and functional.
+    The <code>onMessage</code> method constitutes the<code>Logger</code> class's implementation of the <a href="module-extension-Extension.html#onMessage"><code>onMessage</code></a> method, one of the methods requiredfor implementation by all subclasses extending the <a href="module-extension-Extension.html"><code>Extension</code></a> class that serves as an event listener callbackfunction handling Discord "message" events.<br /><br />This particular implementation is used to monitor the verify channel, whichby design should only be used to process verification requests. The methodchecks all non-bot messages posted in the verify channel (including allwell-formed <code>!verify</code> commands), logging them in amoderator-exclusive channel for subsequent review. In cases of messagesthat do not constitute properly formatted verification requests, the methodadds a bot reply informing the user of the verification channel's purposeand removing both the message and the reply after a set interval.
 </div>
 
 
@@ -225,52 +225,6 @@
         </tr>
 
     
-
-        <tr>
-            
-                <td class="name"><code>args</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Array.&lt;string></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">An array of <code>string</code>s constitutingthe arguments that follow the initial command invocation. Due to itssimplicity, the <code!ping</code> command takes no subsequent arguments, sothe value of this parameter is not used or checked by the method.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>logReply</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">A reference to the <a href="module-extension-Extension.html#addReply"><code>Extension#addReply</code></a> method, bound to the<code>Commander</code> class instance. This ensures command subclasses arenot directly interfacing with the server channels, a responsibility underthe exclusive purview of classes that extend <code>Extension</code> alone.</td>
-        </tr>
-
-    
     </tbody>
 </table>
 
@@ -308,7 +262,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_extensions_commander_lib_ping.js.html">src/extensions/commander/lib/ping.js</a>, <a href="src_extensions_commander_lib_ping.js.html#line54">line 54</a>
+        <a href="src_extensions_logger_index.js.html">src/extensions/logger/index.js</a>, <a href="src_extensions_logger_index.js.html#line69">line 69</a>
     </li></ul></dd>
     
 
@@ -318,7 +272,7 @@
     <dt class="tag-see">See:</dt>
     <dd class="tag-see">
         <ul>
-            <li><a href="module-command-Command.html#execute"><code>Command#execute</code></a></li>
+            <li><a href="module-extension-Extension.html#onMessage"><code>Extension#onMessage</code></a></li>
         </ul>
     </dd>
     

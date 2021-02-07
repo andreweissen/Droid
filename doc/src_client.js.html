@@ -33,7 +33,7 @@
  * of the application, as it is directly responsible for coordinating responses
  * to user command invocations, logging replies in the server channels, and
  * establishing and maintaining a connection to Discord via websocket. It could
- * be viewed as a tacit extending subclass of &lt;code>Discord.Client&lt;/code>.
+ * be viewed as a tacitly extending subclass of &lt;code>Discord.Client&lt;/code>.
  * @module client
  * @author Andrew Eissen &lt;andrew@andreweissen.com>
  * @requires fs
@@ -53,21 +53,35 @@ const Discord = require("discord.js");
 
 // @ts-check
 /**
- * @classdesc The &lt;code>Client&lt;/code> class serves as the beating heart of the
- * application of the same name. It is responsible for coordinating the behavior
- * of the bot, loading commands, evaluating each new message posted to server
- * channels, and replying to user queries as required.
+ * @classdesc Though much of its original functionality has since been delegated
+ * to more specialized classes by means of the recent rewrite, the
+ * &lt;code>Client&lt;/code> class still tacitly serves as the beating heart of the
+ * application. It is responsible for initializing and coordinating the behavior
+ * of the bot, loading extensions, and logging in via websocket. Prior to its
+ * rewrite, it also handled the responsibilities of loading commands, monitoring
+ * certain server channels, and responding to user queries as required.
  * &lt;br />
  * &lt;br />
- * As the central class of the bot application, &lt;code>Client&lt;/code> is the only
- * class that may interact with other users in the server channels through the
- * posting of messages. In previous versions of the application, various command
- * subclasses extending [Command]{@link module:command~Command} would likewise
- * post messages in the server. However, this spaghetti approach was eventually
- * refactored and replaced with the passing of each subclass a reference to
- * [addReply]{@link module:client~Client#addReply} bound to the
- * &lt;code>Client&lt;/code> class instance to ensure all message logging remained
+ * As the central class of the bot application, &lt;code>Client&lt;/code> was
+ * previously the only class empowered to interact with other users in the
+ * server channels through the posting of messages. In previous versions of the
+ * application, various command subclasses extending [Command]{@link
+ * module:command~Command} could likewise post messages in the server. However,
+ * this spaghetti approach was eventually refactored and replaced with the
+ * passing of each subclass a reference to a dedicated response methdo bound to
+ * the &lt;code>Client&lt;/code> class instance to ensure all message logging remained
  * during the exclusive purview of the central &lt;code>Client&lt;/code> class.
+ * &lt;br />
+ * &lt;br />
+ * However, as of the most recent rewrite (February 2021), the class's reply
+ * method was instead moved to [Extension]{@link module:extension~Extension} and
+ * named [addReply]{@link module:extension~Extension#addReply}. This method is
+ * now available to all implementing subclasses of &lt;code>Extension&lt;/code>,
+ * leaving the posting of messages as the responsibility of extensions
+ * themselves. The previous approach of passing a bound version of the reply
+ * method to &lt;code>Command&lt;/code> subclasses was retained, as [Commander]{@link
+ * module:commander~Commander} now passes its &lt;code>addReply&lt;/code> method to
+ * its commands.
  * @class
  */
 class Client {
@@ -77,8 +91,8 @@ class Client {
    * index.js, is responsible for creating new &lt;code>Discord.Client&lt;/code> and
    * &lt;code>Discord.Collection&lt;/code> instances, defining resource objects that
    * contain various operation properties and raw message text, setting various
-   * status &lt;code>boolean&lt;/code> flags, and establishing event listeners and
-   * their associated callbacks.
+   * status &lt;code>boolean&lt;/code> flags, loading extensions, and establishing
+   * event listeners and their associated callbacks.
    * @param {string} token - A process environment variable representing the
    * Discord application's client ID/bot token provided by Discord when first
    * converting an application to a bot.
@@ -119,12 +133,12 @@ class Client {
     /**
      * @description The &lt;code>lang&lt;/code> &lt;code>Object&lt;/code> contains all the
      * raw text content of messages the &lt;code>Client&lt;/code> class instance will
-     * generate in the server channels by means of [Client#addReply]{@link
-     * module:client~Client#addReply}. Unlike the contents of the
+     * generate in the server channels by means of [Extension#addReply]{@link
+     * module:extension~Extension#addReply}. Like the contents of the
      * [Client#config]{@link module:client~Client#config} &lt;code>Object&lt;/code>,
-     * the &lt;code>lang&lt;/code> property should not be configured by the installing
-     * user or have its properties adjusted in any way apart from the submission
-     * of modifications made to the text values of the JSON keys.
+     * the &lt;code>lang&lt;/code> property may be configured by the installing
+     * user via the inclusion of an identically named file in the root
+     * directory.
      * @member {Object}
      */
     this.lang = lang;
@@ -145,20 +159,20 @@ class Client {
     this.client = new Discord.Client();
 
     /**
-     * @description The &lt;code>commands&lt;/code> property of the
+     * @description The &lt;code>extensions&lt;/code> property of the
      * &lt;code>Client&lt;/code> class is an instance of the
      * [Discord.Collection]{@link import('discord.js').Collection} class that is
-     * used to store initialized instances of command classes that extend the
-     * base [Command]{@link module:command~Command} class. A subclass that
+     * used to store initialized instances of extension classes that extend the
+     * base [Command]{@link module:extension~Extension} class. A subclass that
      * extends the base {@link Map} JavaScript structure, it is populated by
-     * [loadCommand]{@link module:client~Client#loadCommand}, usually at the
-     * start of the application's initialization, though post-initialization
+     * [loadCommand]{@link module:client~Client#loadExtensionDir}, usually at
+     * the start of the application's initialization, though post-initialization
      * additions of command classes is possible.
      * @member {Discord.Collection}
      * @see [Discord.Collection]{@link
-     * https://discord.js.org/#/docs/collection/master/class/Collection}
-     */
-    this.commands = new Discord.Collection();
+      * https://discord.js.org/#/docs/collection/master/class/Collection}
+      */
+    this.extensions = new Discord.Collection();
 
     /**
      * @description The &lt;code>_loggedIn&lt;/code> &lt;code>boolean&lt;/code> property is
@@ -173,10 +187,21 @@ class Client {
      */
     this._loggedIn = false;
 
-    // Set event listeners and associated callbacks
+    // Load extensions and populate Collection with objects
+    this.loadExtensionDir(path.join(__dirname, "extensions"));
+
+    // Set default event listeners and associated callbacks
     this.client.on("ready", this.onReady.bind(this));
     this.client.on("error", this.onError.bind(this));
-    this.client.on("message", this.onMessage.bind(this));
+
+    // Set custom event listeners for all extensions to be run on new message
+    this.extensions.forEach(extension => {
+      this.client.on("message", extension.onMessage.bind(extension));
+
+      if (this.config.utility.debug) {
+        console.log(`${extension.name} -> ${this.lang.client.success.online}`);
+      }
+    });
   }
 
   /**
@@ -208,7 +233,7 @@ class Client {
    * the internal field if the parameter is not of the proper type.
    * @function
    * @param {Object} config - The parameter to be assigned as the internal
-   * &lt;code>_config&lt;/code>. It should be a primitive &lt;code>Object&lt;/code>.
+   * &lt;code>_config&lt;/code>. It should be an &lt;code>Object&lt;/code>.
    * @returns {void}
    */
   set config (config) {
@@ -226,7 +251,7 @@ class Client {
    * the internal field if the parameter is not of the proper type.
    * @function
    * @param {Object} lang - The parameter to be assigned as the internal
-   * &lt;code>_lang&lt;/code>. It should be a primitive &lt;code>Object&lt;/code>.
+   * &lt;code>_lang&lt;/code>. It should be an &lt;code>Object&lt;/code>.
    * @returns {void}
    */
   set lang (lang) {
@@ -294,216 +319,46 @@ class Client {
   }
 
   /**
-   * @description Arguably the most important method of the &lt;code>Client&lt;/code>
-   * class, &lt;code>onMessage&lt;/code> serves as the primary event listener callback
-   * handling "message" events. As such, it is responsible for checking to see
-   * if the bot application should take an interest in the most recent message,
-   * namely the [Discord.Message]{@link
-   * http://discord.js.org/#/docs/main/master/class/Message} instance that is
-   * passed as the method's sole parameter. If the message is determined to
-   * constitute a command invocation, the method will check to see if a command
-   * matching the invoked name exists in [Client#commands]{@link
-   * module:client~Client#commands}, the [Discord.Collection]{@link
-   * https://discord.js.org/#/docs/collection/master/class/Collection}
-   * containing all previously instantiated command subclasses corresponding to
-   * available command functionality. If so, the method invokes the relevant
-   * implementation of [Command#execute]{@link module:command~Command#execute}
-   * to pass the execution progression off to the relevant subclass.
-   * &lt;br />
-   * &lt;br />
-   * On a more detailed level, the method begins by checking if the user has
-   * attempted to post a non-verification message in the verify channel, logging
-   * the message in the moderator logs channel if so before deleting the message
-   * and adding a timed reply in response. Otherwise, if the message was a
-   * normal user post in another channel rather than a command invocation, the
-   * method ignores it and returns to await the next message.
-   * &lt;br />
-   * &lt;br />
-   * However, if the message does constitute a wellformed command invocation,
-   * the method will validate the input and attempt to locate an available
-   * command matching the desired command. If one is found, the method will then
-   * query &lt;code>Client#commands&lt;/code> to see if an instance of the appropriate
-   * command subclass extending [Command]{@link module:command~Command} exists,
-   * invoking [Client#loadCommand]{@link module:client~Client#loadCommand} if
-   * not. Execution is then handed off to the &lt;code>Command#execute&lt;/code>
-   * method to address the required command action.
+   * @description The &lt;code>loadExtensionDir&lt;/code>, as its name implies, is
+   * used to load the various extensions that extend the [Extension]{@link
+   * module:extension~Extension} class. It is written much like the
+   * [loadCommand]{@link module:commander~Commander#loadCommand} method from
+   * which it originated, in that it requires the &lt;code>js&lt;/code> file
+   * constituting the extension application logic, partitions off the part of
+   * the &lt;code>lang.json&lt;/code> &lt;code>object&lt;/code> relating to the extension in
+   * question, instantiates a new extension class, checks for duplicates already
+   * present in [Client#extensions]{@link module:client~Client#extensions}, and
+   * finally adds the instance to the &lt;code>Collection&lt;/code> and marks it as
+   * loaded.
    * @function
-   * @param {Object} message - A new &lt;code>Discord.Message&lt;/code> class instance
-   * containing information pertaining to the most recent server message, its
-   * author, and the channel in which it was posted, among other data.
+   * @see [Commander#loadCommand]{@link module:commander~Commander#loadCommand}
+   * @param {string} [dir=path.join(__dirname, "extensions")] - The directory
+   * in which the extension directories are stored; by convention, this is
+   * &lt;code>./src/extensions&lt;/code>
    * @returns {void}
    */
-  onMessage (message) {
-    const commands = this.config.commands;
-    const channels = this.config.channels;
-    const lang = this.lang.client;
+  loadExtensionDir (dir = path.join(__dirname, "extensions")) {
+    fs.readdirSync(dir).forEach((file) => {
 
-    /*
-     * If the posting user is not a bot and is posting non-verification messages
-     * in the Verify channel, the application will post the contents of that
-     * message in the moderator-restricted "logs" channel as an attributed
-     * indented quotation before deleting the original message from the verify
-     * channel. The bot will then post a follow-up reply addressed to the user
-     * that informs of the channel's intended purposes. This reply will
-     * self-delete after the provided interval.
-     */
-    if (
-      !message.author.bot &amp;&amp;
-      (message.channel.id === channels.verify) &amp;&amp;
-      (!message.content.startsWith(commands.prefix + commands.names.verify))
-    ) {
-      // Post in Chat Moderator "logs" channel
-      message.client.channels.cache.get(channels.logs).send(
-        `${message.author.tag}:\n> ${message.content}`
-      );
+      // Search each extension directory for index.js file
+      const Extension = require(path.join(dir, file));
 
-      // Add self-deleting informational message
-      return this.addReply(message, lang.error.unrelated);
-    }
+      // Extension-specific lang from lang.json
+      const lang = this.lang[file];
 
-    /*
-     * Take no further interest if the poster is a bot (avoid instant
-     * self-deletion of above timed replies) or if the message doesn't start
-     * with the command prefix.
-     */
-    if (!message.content.startsWith(commands.prefix) || message.author.bot) {
-      return;
-    }
+      // Instantiate new instance of extension class and mark as unloaded
+      const extension = new Extension(file, false, this.config, lang);
 
-    // Remove prefix and convert to array of strings, i.e. ["verify", "Sebolto"]
-    const args = message.content.slice(commands.prefix.length).split(/ +/);
+      if (this.config.utility.debug) {
+        console.log(`${file} -> ${this.extensions.has(file)}`);
+      }
 
-    // Remove command text ("ping", "verify") from args array and lowercase it
-    const invokedCommand = args.shift().toLowerCase();
-
-    if (this.config.utility.debug) {
-      console.log(args, invokedCommand);
-    }
-
-    // Check that invoked command is actually an implemented command subclass
-    const command = Object.keys(commands.names).find(key => {
-      return commands.names[key] === invokedCommand;
+      // Add new extension to Collection if not present and mark as loaded
+      if (!this.extensions.has(extension) &amp;&amp; !extension.loaded) {
+        this.extensions.set(extension.name, extension);
+        extension.loaded = true;
+      }
     });
-
-    // Handle nonexistent command invocations
-    if (!command) {
-      return this.addReply(message, lang.error.nonexistent);
-    }
-
-    /*
-     * Check if the &lt;code>Client&lt;/code> instance's
-     * &lt;code>Discord.Collection&lt;/code> (extends &lt;code>Map&lt;/code>) already has
-     * the queried command, implying that &lt;code>loadCommand&lt;/code> has already
-     * been invoked and a new instance of this command's class created and
-     * stored.
-     */
-    if (!this.commands.has(command)) {
-      try {
-        this.loadCommand(`${command}.js`);
-      } catch (error) {
-        return console.error(lang.error.error, error);
-      }
-    }
-
-    // Acquire class instance and invoke the execute method
-    this.commands.get(command).execute(message, args, this.addReply.bind(this));
-  }
-
-  /**
-   * @description The &lt;code>addReply&lt;/code> method is used to log a new reply
-   * directed at the user invoking the given command that provides information
-   * about the state of the request. A copy of this function bound to the
-   * &lt;code>Client&lt;/code> class instance to which the method belongs is passed to
-   * each command subclasses's [execute]{@link Command#execute} method to
-   * ensure that the &lt;code>Client&lt;/code> class is the only module to interact
-   * with the server channels. Subclasses extending [Command]{@link Command}
-   * should only contain application logic related to those commands, leaving
-   * the posting of results to this method.
-   * @function
-   * @param {Object} message - A new [Discord.Message]{@link
-   * http://discord.js.org/#/docs/main/master/class/Message} class instance
-   * containing information pertaining to the most recent server message, its
-   * author, and the channel in which it was posted, among other data.
-   * @param {string} langMessage - The text of the specific message to log,
-   * generally a relevant property of [lang]{@link module:client~Client#lang}.
-   * @param {boolean} [deleteMessages=true] - A &lt;code>boolean&lt;/code> flag
-   * denoting whether to delete the poster's original message and the bot's
-   * reply after the interval defined in [config]{@link
-   * module:client~Client#config} has elapsed. This optional field is set to
-   * &lt;code>true&lt;/code> by default.
-   * @returns {void}
-   */
-  addReply (message, langMessage, deleteMessages = true) {
-    if (deleteMessages) {
-      message.delete();
-    }
-
-    // Direct reponse to the user directly
-    message.reply(langMessage).then(msg => {
-      if (deleteMessages) {
-        msg.delete({
-          timeout: this.config.utility.interval
-        });
-      }
-    }).catch(console.error);
-  }
-
-  /**
-   * @description As its name implies, &lt;code>loadCommand&lt;/code> is used to
-   * create a new class instance of the command class specified in the
-   * &lt;code>file&lt;/code> parameter and add that newly created instance to the
-   * &lt;code>Client&lt;/code> instance's &lt;code>Discord.Collection&lt;/code> map for
-   * subsequent retrieval and usage.
-   * @function
-   * @param {string} file - The name of the requested command to load (should
-   * come suffixed with "&lt;code>.js&lt;/code>" in all cases)
-   * @param {string} [dir=path.join(__dirname, "commands", "lib")] - Directory
-   * name in which the parameter command file may be found (default is
-   * &lt;code>./commands/lib&lt;/code>)
-   * @returns {void}
-   */
-  loadCommand (file, dir = path.join(__dirname, "commands", "lib")) {
-
-    // Get module exports of requested command file
-    const Command = require(path.join(dir, file));
-
-    // Command#name field value from name of the JS file in question
-    const name = file.split(".")[0];
-
-    // Command subclass-specific bot messages from this.lang.commands
-    const lang = this.lang.commands[name];
-
-    // Instantiate new instance of command class and mark as unloaded
-    const command = new Command(name, false, this.config, lang);
-
-    if (this.config.utility.debug) {
-      console.log(`${command.name} -> ${this.commands.has(command.name)}`);
-    }
-
-    // Add new command to map if not already extant and mark as loaded
-    if (!this.commands.has(command.name) &amp;&amp; !command.loaded) {
-      this.commands.set(command.name, command);
-      command.loaded = true;
-    }
-  }
-
-  /**
-   * @description The &lt;code>loadCommandDir&lt;/code> method is used to fetch the
-   * &lt;code>string&lt;/code> names representing files stored in the parameter
-   * directory, filter out those that are not properly suffixed "js" JavaScript
-   * modules, and invoke [loadCommand]{@link module:client~Client#loadCommand}
-   * on those those for the purposes of populating the &lt;code>Client&lt;/code> class
-   * instance's &lt;code>Discord.Collection&lt;/code> map.
-   * @function
-   * @param {string} dir - Directory &lt;code>Array&lt;/code> of &lt;code>string&lt;/code>
-   * file names (&lt;code>./src/commands/lib&lt;/code> when invoked by
-   * {@link index.js})
-   * @returns {void}
-   */
-  loadCommandDir (dir) {
-    fs.readdirSync(dir).filter((file) => {
-      return file.endsWith(".js");
-    }).forEach((file) => this.loadCommand(file, dir));
   }
 
   /**
@@ -543,13 +398,13 @@ module.exports = Client;</code></pre>
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-about.html">about</a></li><li><a href="module-client.html">client</a></li><li><a href="module-command.html">command</a></li><li><a href="module-ping.html">ping</a></li><li><a href="module-resource.html">resource</a></li><li><a href="module-verify.html">verify</a></li></ul><h3>Classes</h3><ul><li><a href="module-about-About.html">About</a></li><li><a href="module-client-Client.html">Client</a></li><li><a href="module-command-Command.html">Command</a></li><li><a href="module-ping-Ping.html">Ping</a></li><li><a href="module-resource-Resource.html">Resource</a></li><li><a href="module-verify-Verify.html">Verify</a></li></ul><h3>Global</h3><ul><li><a href="global.html#Client">Client</a></li><li><a href="global.html#client">client</a></li><li><a href="global.html#config">config</a></li><li><a href="global.html#dotenv">dotenv</a></li><li><a href="global.html#lang">lang</a></li><li><a href="global.html#path">path</a></li><li><a href="global.html#Resource">Resource</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-about.html">about</a></li><li><a href="module-client.html">client</a></li><li><a href="module-command.html">command</a></li><li><a href="module-commander.html">commander</a></li><li><a href="module-extension.html">extension</a></li><li><a href="module-logger.html">logger</a></li><li><a href="module-ping.html">ping</a></li><li><a href="module-resource.html">resource</a></li><li><a href="module-verify.html">verify</a></li></ul><h3>Classes</h3><ul><li><a href="module-about-About.html">About</a></li><li><a href="module-client-Client.html">Client</a></li><li><a href="module-commander-Commander.html">Commander</a></li><li><a href="module-command-Command.html">Command</a></li><li><a href="module-extension-Extension.html">Extension</a></li><li><a href="module-logger-Logger.html">Logger</a></li><li><a href="module-ping-Ping.html">Ping</a></li><li><a href="module-resource-Resource.html">Resource</a></li><li><a href="module-verify-Verify.html">Verify</a></li></ul><h3>Global</h3><ul><li><a href="global.html#Client">Client</a></li><li><a href="global.html#client">client</a></li><li><a href="global.html#config">config</a></li><li><a href="global.html#dotenv">dotenv</a></li><li><a href="global.html#lang">lang</a></li><li><a href="global.html#path">path</a></li><li><a href="global.html#Resource">Resource</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Sun Dec 20 2020 09:58:55 GMT-0500 (Eastern Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Sat Feb 06 2021 19:04:31 GMT-0500 (Eastern Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>
