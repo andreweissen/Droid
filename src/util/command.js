@@ -252,9 +252,9 @@ class Command {
    * interfacing with the server channels, a responsibility under the exclusive
    * purview of the <code>Commander</code> extension class and its respective
    * methods alone.
-   * @returns {void}
+   * @returns {Promise<void>}
    */
-  execute (message, args, logReply) {}
+  async execute (message, args, logReply) {}
 }
 
 module.exports = Command;

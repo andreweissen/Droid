@@ -236,8 +236,16 @@ class Commander extends Extension {
       }
     }
 
-    // Acquire class instance and invoke the execute method
-    this.commands.get(command).execute(message, args, this.addReply.bind(this));
+    // Acquire requested command subclass instance
+    const instance = this.commands.get(command);
+
+    // Invoke the instance's execute method
+    try {
+      instance.execute(message, args, this.addReply.bind(this));
+    } catch (error) {
+      return console.error(`${this.lang.error.loading} [${instance.name}]`,
+        error);
+    }
   }
 }
 

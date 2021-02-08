@@ -49,9 +49,9 @@ class Ping extends Command {
    * <code>Commander</code> class instance. This ensures command subclasses are
    * not directly interfacing with the server channels, a responsibility under
    * the exclusive purview of classes that extend <code>Extension</code> alone.
-   * @returns {void}
+   * @returns {Promise<void>}
    */
-  execute (message, args, logReply) {
+  async execute (message, args, logReply) {
     logReply(message, this.lang.success[
       (message.channel.id === this.config.channels.moderator)
         ? "custom"
